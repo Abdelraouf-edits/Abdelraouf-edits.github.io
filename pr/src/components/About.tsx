@@ -124,7 +124,7 @@ const About = () => {
               {/* Photo container */}
               <div className="relative w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] rounded-full overflow-hidden border-4 border-primary/30 group-hover:border-primary/50 transition-all duration-500 shadow-2xl">
                 <img 
-                  src="/abdo.png"
+                  src="public/abdo.webp"
                   alt="Abdo"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
