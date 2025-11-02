@@ -181,11 +181,11 @@ const CustomStreamablePlayer = ({ videoId, thumbnail, title }: CustomStreamableP
               >
                 <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/80 hover:border-primary transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/50">
                   <img 
-                    src="/abdo.png" 
+                    src="/abdo.webp" 
                     alt="Abdelraouf"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = 'https://scontent-lga3-2.cdninstagram.com/v/t51.2885-19/467484558_1107209267768606_6636711612999803585_n.jpg?stp=dst-jpg_s150x150_tt6&_nc_ht=scontent-lga3-2.cdninstagram.com&_nc_cat=109&_nc_ohc=yQQQA0eYjjEQ7kNvgGaQrVE&_nc_gid=bf88eddc63724ffaba4ba4d8bd00baed&edm=AEhyXUkBAAAA&ccb=7-5&oh=00_AYDnYGLmscgAihmUmOFm_F4sAF8S28z3LbqNjB5dA0RL-A&oe=672BFE20&_nc_sid=8f1549';
+                      e.currentTarget.src = '/abdo.png';
                     }}
                   />
                 </div>

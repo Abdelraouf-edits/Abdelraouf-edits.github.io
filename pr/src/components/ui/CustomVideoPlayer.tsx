@@ -245,7 +245,7 @@ const CustomVideoPlayer = ({ videoId, thumbnail, title }: CustomVideoPlayerProps
               onClick={(e) => e.stopPropagation()}
             >
               <img 
-                src="/abdo.png" 
+                src="/abdo.webp" 
                 alt="Channel" 
                 className="w-10 h-10 rounded-full border-2 border-primary object-cover shadow-lg"
               />
