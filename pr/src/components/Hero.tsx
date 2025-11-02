@@ -110,7 +110,7 @@ const Hero = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="text-lg px-8 py-6 border-primary/50 hover:bg-primary/10 hover:border-primary transition-smooth hover:scale-105"
+              className="text-lg px-8 py-6 border-2 border-primary/60 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/50 font-semibold"
               onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
             >
               Contact Me

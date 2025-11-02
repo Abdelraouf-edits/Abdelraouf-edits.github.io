@@ -4,6 +4,25 @@ document.addEventListener('contextmenu', function(e) {
   return false;
 });
 
+// Prevent dragging images
+document.addEventListener('dragstart', function(e) {
+  if (e.target.tagName === 'IMG') {
+    e.preventDefault();
+    return false;
+  }
+});
+
+// Prevent drag and drop
+document.addEventListener('drop', function(e) {
+  e.preventDefault();
+  return false;
+});
+
+document.addEventListener('dragover', function(e) {
+  e.preventDefault();
+  return false;
+});
+
 // Optional: Prevent common keyboard shortcuts for opening dev tools
 document.addEventListener('keydown', function(e) {
   // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
