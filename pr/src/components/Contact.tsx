@@ -194,7 +194,7 @@ const Contact = () => {
               </span>
             </a>
             <a 
-              href="https://discord.gg/CGJnErVw" 
+              href="https://discord.com/users/863395257571213333" 
               target="_blank" 
               rel="noopener noreferrer"
               className="w-12 h-12 bg-card border border-border hover:border-primary flex items-center justify-center rounded-full transition-all hover:scale-110 hover:shadow-glow hover:-translate-y-1 group relative"

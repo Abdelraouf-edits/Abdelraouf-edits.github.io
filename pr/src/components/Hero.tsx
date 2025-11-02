@@ -13,39 +13,52 @@ const Hero = () => {
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Set initial state
-      gsap.set([titleRef.current, subtitleRef.current, descRef.current, buttonsRef.current?.children], {
+      gsap.set([subtitleRef.current, descRef.current, buttonsRef.current?.children], {
         opacity: 0,
       });
 
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      // Get all character spans
+      if (titleRef.current) {
+        const chars = titleRef.current.querySelectorAll('.char');
 
-      // Animate hero elements on load with better timing
-      tl.to(titleRef.current, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 1,
-        clearProps: "transform",
-      })
-      .to(subtitleRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        clearProps: "transform",
-      }, "-=0.5")
-      .to(descRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        clearProps: "transform",
-      }, "-=0.3")
-      .to(buttonsRef.current?.children || [], {
-        opacity: 1,
-        y: 0,
-        stagger: 0.15,
-        duration: 0.5,
-        clearProps: "transform",
-      }, "-=0.2");
+        // Set initial state for characters
+        gsap.set(chars, { 
+          opacity: 0,
+          y: 50,
+          rotationX: -90,
+        });
+
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+        // Animate characters with stagger
+        tl.to(chars, {
+          opacity: 1,
+          y: 0,
+          rotationX: 0,
+          stagger: 0.05,
+          duration: 0.8,
+          ease: "back.out(1.7)",
+        })
+        .to(subtitleRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          clearProps: "transform",
+        }, "-=0.4")
+        .to(descRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          clearProps: "transform",
+        }, "-=0.3")
+        .to(buttonsRef.current?.children || [], {
+          opacity: 1,
+          y: 0,
+          stagger: 0.15,
+          duration: 0.5,
+          clearProps: "transform",
+        }, "-=0.2");
+      }
     }, heroRef);
 
     return () => ctx.revert();
@@ -65,8 +78,12 @@ const Hero = () => {
           <p className="text-muted-foreground text-lg mb-4 font-light tracking-wide">
             Hi, I'm
           </p>
-          <h1 ref={titleRef} className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 tracking-tight text-gradient">
-            Abdelraouf
+          <h1 ref={titleRef} className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 tracking-tight text-gradient inline-block">
+            {'Abdelraouf'.split('').map((char, index) => (
+              <span key={index} className="char inline-block" style={{ display: 'inline-block' }}>
+                {char}
+              </span>
+            ))}
           </h1>
           <div className="inline-block">
             <h2 ref={subtitleRef} className="text-2xl md:text-4xl lg:text-5xl font-light text-muted-foreground mb-8">
