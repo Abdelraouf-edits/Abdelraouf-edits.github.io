@@ -4,13 +4,71 @@ document.addEventListener('contextmenu', function(e) {
   return false;
 });
 
-// Prevent dragging images
+// Prevent dragging images and all draggable elements
 document.addEventListener('dragstart', function(e) {
+  // Prevent dragging images
   if (e.target.tagName === 'IMG') {
     e.preventDefault();
     return false;
   }
+  // Prevent dragging any element with draggable attribute
+  if (e.target.draggable) {
+    e.preventDefault();
+    return false;
+  }
 });
+
+// Add draggable="false" to all images when DOM loads and when new images are added
+function disableImageDragging() {
+  const images = document.getElementsByTagName('img');
+  for (let i = 0; i < images.length; i++) {
+    images[i].setAttribute('draggable', 'false');
+    images[i].style.userSelect = 'none';
+    images[i].style.webkitUserDrag = 'none';
+    images[i].style.webkitUserSelect = 'none';
+    images[i].style.mozUserSelect = 'none';
+    images[i].style.msUserSelect = 'none';
+    // Prevent mouse down for dragging
+    images[i].addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      return false;
+    });
+  }
+}
+
+// Run on page load
+window.addEventListener('load', disableImageDragging);
+// Run when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', disableImageDragging);
+} else {
+  disableImageDragging();
+}
+
+// Watch for dynamically added images
+const observer = new MutationObserver(function(mutations) {
+  mutations.forEach(function(mutation) {
+    if (mutation.addedNodes.length) {
+      mutation.addedNodes.forEach(function(node) {
+        if (node.tagName === 'IMG') {
+          node.setAttribute('draggable', 'false');
+          node.style.userSelect = 'none';
+          node.style.webkitUserDrag = 'none';
+        }
+        if (node.getElementsByTagName) {
+          const images = node.getElementsByTagName('img');
+          for (let i = 0; i < images.length; i++) {
+            images[i].setAttribute('draggable', 'false');
+            images[i].style.userSelect = 'none';
+            images[i].style.webkitUserDrag = 'none';
+          }
+        }
+      });
+    }
+  });
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
 
 // Prevent drag and drop
 document.addEventListener('drop', function(e) {

@@ -21,11 +21,14 @@ const Hero = () => {
       if (titleRef.current) {
         const chars = titleRef.current.querySelectorAll('.char');
 
-        // Set initial state for characters
+        // Set initial state for characters with force3D for better Chrome performance
         gsap.set(chars, { 
           opacity: 0,
           y: 50,
           rotationX: -90,
+          transformPerspective: 600,
+          transformOrigin: "50% 50%",
+          force3D: true,
         });
 
         const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
@@ -38,6 +41,8 @@ const Hero = () => {
           stagger: 0.05,
           duration: 0.8,
           ease: "back.out(1.7)",
+          force3D: true,
+          clearProps: "all",
         })
         .to(subtitleRef.current, {
           opacity: 1,
@@ -78,9 +83,18 @@ const Hero = () => {
           <p className="text-muted-foreground text-lg mb-4 font-light tracking-wide">
             Hi, I'm
           </p>
-          <h1 ref={titleRef} className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 tracking-tight text-gradient inline-block">
+          <h1 ref={titleRef} className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 tracking-tight text-gradient inline-block" style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
             {'Abdelraouf'.split('').map((char, index) => (
-              <span key={index} className="char inline-block" style={{ display: 'inline-block' }}>
+              <span 
+                key={index} 
+                className="char inline-block" 
+                style={{ 
+                  display: 'inline-block',
+                  transformStyle: 'preserve-3d',
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                }}
+              >
                 {char}
               </span>
             ))}
