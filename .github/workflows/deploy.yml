@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: 'pr/package-lock.json'
 
       - name: Install dependencies (pr/)
         working-directory: ./pr
