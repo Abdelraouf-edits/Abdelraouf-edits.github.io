@@ -113,17 +113,18 @@ const Process = () => {
                     {step.number}
                   </div>
                   
+                  {/* Icon at the top */}
+                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-glow transition-all duration-500 backdrop-blur-sm border border-primary/20 mb-6">
+                    <Icon className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-500" />
+                  </div>
+                  
                   <h3 className="text-2xl font-bold mb-4 group-hover:text-gradient transition-all duration-300">
                     {step.title}
                   </h3>
                   
-                  <p className="text-muted-foreground leading-relaxed mb-6">
+                  <p className="text-muted-foreground leading-relaxed">
                     {step.description}
                   </p>
-                  
-                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 group-hover:rotate-3 group-hover:shadow-glow transition-all duration-500 backdrop-blur-sm border border-primary/20">
-                    <Icon className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-500" />
-                  </div>
                 </div>
 
                 {/* Arrow connector */}
