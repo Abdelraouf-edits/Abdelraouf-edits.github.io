@@ -83,7 +83,7 @@ const Hero = () => {
           <p className="text-muted-foreground text-lg mb-4 font-light tracking-wide">
             Hi, I'm
           </p>
-          <h1 ref={titleRef} className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 tracking-tight text-gradient inline-block" style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
+          <h1 ref={titleRef} className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tight text-gradient inline-block" style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
             {'Abdelraouf'.split('').map((char, index) => (
               <span 
                 key={index} 
