@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { ExternalLink, Play } from "lucide-react";
+import { ExternalLink, Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import CustomVideoPlayer from "@/components/ui/CustomVideoPlayer";
 import CustomStreamablePlayer from "@/components/ui/CustomStreamablePlayer";
@@ -69,11 +69,63 @@ const reels = [
 
 const Work = () => {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
+  const [projectsPage, setProjectsPage] = useState(0);
+  const [reelsPage, setReelsPage] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const reelsTitleRef = useRef<HTMLDivElement>(null);
   const reelsRef = useRef<HTMLDivElement>(null);
+
+  const PROJECTS_PER_PAGE = 4;
+  const REELS_PER_PAGE = 6;
+
+  const totalProjectsPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
+  const totalReelsPages = Math.ceil(reels.length / REELS_PER_PAGE);
+
+  const currentProjects = projects.slice(
+    projectsPage * PROJECTS_PER_PAGE,
+    (projectsPage + 1) * PROJECTS_PER_PAGE
+  );
+
+  const currentReels = reels.slice(
+    reelsPage * REELS_PER_PAGE,
+    (reelsPage + 1) * REELS_PER_PAGE
+  );
+
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  };
+
+  const nextProjectsPage = () => {
+    if (projectsPage < totalProjectsPages - 1) {
+      setProjectsPage(prev => prev + 1);
+      setTimeout(() => scrollToSection(projectsRef), 100);
+    }
+  };
+
+  const prevProjectsPage = () => {
+    if (projectsPage > 0) {
+      setProjectsPage(prev => prev - 1);
+      setTimeout(() => scrollToSection(projectsRef), 100);
+    }
+  };
+
+  const nextReelsPage = () => {
+    if (reelsPage < totalReelsPages - 1) {
+      setReelsPage(prev => prev + 1);
+      setTimeout(() => scrollToSection(reelsRef), 100);
+    }
+  };
+
+  const prevReelsPage = () => {
+    if (reelsPage > 0) {
+      setReelsPage(prev => prev - 1);
+      setTimeout(() => scrollToSection(reelsRef), 100);
+    }
+  };
 
   // GSAP Scroll Animations
   useEffect(() => {
@@ -197,8 +249,31 @@ const Work = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-32" ref={projectsRef}>
-          {projects.map((project, index) => (
+        <div className="relative">
+          {/* Navigation Arrows for Projects */}
+          {totalProjectsPages > 1 && (
+            <>
+              <button
+                onClick={prevProjectsPage}
+                disabled={projectsPage === 0}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 z-10 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 disabled:hover:scale-100"
+                aria-label="Previous projects"
+              >
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </button>
+              <button
+                onClick={nextProjectsPage}
+                disabled={projectsPage >= totalProjectsPages - 1}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 z-10 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 disabled:hover:scale-100"
+                aria-label="Next projects"
+              >
+                <ChevronRight className="w-6 h-6 text-white" />
+              </button>
+            </>
+          )}
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-32" ref={projectsRef}>
+            {currentProjects.map((project, index) => (
             <div 
               key={index}
               className="group relative"
@@ -296,6 +371,28 @@ const Work = () => {
           ))}
         </div>
 
+        {/* Pagination Indicator for Projects */}
+        {totalProjectsPages > 1 && (
+          <div className="flex justify-center gap-2 mb-32">
+            {Array.from({ length: totalProjectsPages }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  setProjectsPage(idx);
+                  setTimeout(() => scrollToSection(projectsRef), 100);
+                }}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  idx === projectsPage
+                    ? 'bg-primary w-8'
+                    : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                }`}
+                aria-label={`Go to projects page ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
         {/* Reels Section */}
         <div className="mb-20 text-center" ref={reelsTitleRef}>
           <div className="inline-flex items-center gap-3 mb-4 px-6 py-2 rounded-full bg-primary/10 border border-primary/20">
@@ -312,8 +409,31 @@ const Work = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto" ref={reelsRef}>
-          {reels.map((reel, index) => (
+        <div className="relative">
+          {/* Navigation Arrows for Reels */}
+          {totalReelsPages > 1 && (
+            <>
+              <button
+                onClick={prevReelsPage}
+                disabled={reelsPage === 0}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 z-10 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 disabled:hover:scale-100"
+                aria-label="Previous reels"
+              >
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </button>
+              <button
+                onClick={nextReelsPage}
+                disabled={reelsPage >= totalReelsPages - 1}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 z-10 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 disabled:hover:scale-100"
+                aria-label="Next reels"
+              >
+                <ChevronRight className="w-6 h-6 text-white" />
+              </button>
+            </>
+          )}
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto" ref={reelsRef}>
+            {currentReels.map((reel, index) => (
             <div 
               key={index}
               className="group relative"
@@ -390,6 +510,28 @@ const Work = () => {
             </div>
           ))}
         </div>
+
+        {/* Pagination Indicator for Reels */}
+        {totalReelsPages > 1 && (
+          <div className="flex justify-center gap-2 mt-12">
+            {Array.from({ length: totalReelsPages }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  setReelsPage(idx);
+                  setTimeout(() => scrollToSection(reelsRef), 100);
+                }}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  idx === reelsPage
+                    ? 'bg-primary w-8'
+                    : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                }`}
+                aria-label={`Go to reels page ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
       </div>
     </section>
   );

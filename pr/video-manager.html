@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📹 Portfolio Video Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header .emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .radio-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .radio-option label {
+            display: block;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .radio-option input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .radio-option label:hover {
+            border-color: #667eea;
+        }
+
+        .category-field {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .category-field.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .preview {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .preview.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .preview h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+
+        .preview-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .preview-value {
+            color: #333;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-all;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-message h4 {
+            margin-bottom: 10px;
+        }
+
+        .success-message ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .success-message li {
+            margin: 5px 0;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .thumbnail-preview {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .thumbnail-preview.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .thumbnail-preview img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="emoji">📹</div>
+            <h1>Portfolio Video Manager</h1>
+            <p>Add videos to your portfolio easily</p>
+        </div>
+
+        <form id="videoForm">
+            <div class="form-group">
+                <label>Video Category <span class="required">*</span></label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="longform" name="category" value="longform" checked>
+                        <label for="longform">
+                            🎬<br>Long-form<br>
+                            <small style="font-weight: normal; opacity: 0.8;">Projects</small>
+                        </label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="shortform" name="category" value="shortform">
+                        <label for="shortform">
+                            📱<br>Short-form<br>
+                            <small style="font-weight: normal; opacity: 0.8;">Reels</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Video Title <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    placeholder="e.g., Iman Gadzhi Style Recreation"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="videoUrl">Streamable URL <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    id="videoUrl" 
+                    placeholder="https://streamable.com/abc123"
+                    required
+                >
+                <p class="helper-text">Paste your Streamable video URL</p>
+            </div>
+
+            <div class="form-group category-field" id="categoryField">
+                <label for="videoCategory">Project Type <span class="required">*</span></label>
+                <select id="videoCategory">
+                    <option value="">Select category...</option>
+                    <option value="Spec Work">Spec Work</option>
+                    <option value="Motion Graphics">Motion Graphics</option>
+                    <option value="Style Recreation">Style Recreation</option>
+                    <option value="Cinematic Edit">Cinematic Edit</option>
+                    <option value="Documentary">Documentary</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Music Video">Music Video</option>
+                </select>
+            </div>
+
+            <div class="thumbnail-preview" id="thumbnailPreview">
+                <label>Thumbnail Preview</label>
+                <img id="thumbnailImg" alt="Video thumbnail">
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                ✨ Add Video to Portfolio
+            </button>
+        </form>
+
+        <div class="preview" id="preview">
+            <h3>📋 Video Details</h3>
+            <div class="preview-item">
+                <span class="preview-label">Category:</span>
+                <span class="preview-value" id="previewCategory"></span>
+            </div>
+            <div class="preview-item">
+                <span class="preview-label">Title:</span>
+                <span class="preview-value" id="previewTitle"></span>
+            </div>
+            <div class="preview-item" id="previewTypeContainer" style="display: none;">
+                <span class="preview-label">Type:</span>
+                <span class="preview-value" id="previewType"></span>
+            </div>
+            <div class="preview-item">
+                <span class="preview-label">Video ID:</span>
+                <span class="preview-value" id="previewId"></span>
+            </div>
+            <div class="preview-item">
+                <span class="preview-label">URL:</span>
+                <span class="preview-value" id="previewUrl"></span>
+            </div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <!-- Success message will be inserted here by JavaScript -->
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('videoForm');
+        const categoryRadios = document.querySelectorAll('input[name="category"]');
+        const categoryField = document.getElementById('categoryField');
+        const preview = document.getElementById('preview');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const thumbnailPreview = document.getElementById('thumbnailPreview');
+        const thumbnailImg = document.getElementById('thumbnailImg');
+        const videoUrlInput = document.getElementById('videoUrl');
+
+        // Toggle category field based on selection
+        categoryRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'longform') {
+                    categoryField.classList.add('show');
+                } else {
+                    categoryField.classList.remove('show');
+                }
+                preview.classList.remove('show');
+                successMessage.classList.remove('show');
+                errorMessage.classList.remove('show');
+            });
+        });
+
+        // Show thumbnail preview when URL is entered
+        videoUrlInput.addEventListener('input', (e) => {
+            const url = e.target.value.trim();
+            const match = url.match(/streamable\.com\/([a-zA-Z0-9]+)/);
+            
+            if (match) {
+                const embedId = match[1];
+                const thumbnailUrl = `https://cdn-cf-east.streamable.com/image/${embedId}.jpg`;
+                thumbnailImg.src = thumbnailUrl;
+                thumbnailPreview.classList.add('show');
+            } else {
+                thumbnailPreview.classList.remove('show');
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Processing...';
+            
+            const formData = {
+                category: document.querySelector('input[name="category"]:checked').value,
+                title: document.getElementById('title').value.trim(),
+                videoUrl: document.getElementById('videoUrl').value.trim(),
+                videoCategory: document.getElementById('videoCategory').value
+            };
+
+            // Validate
+            if (!formData.title || !formData.videoUrl) {
+                showError('Please fill in all required fields.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✨ Add Video to Portfolio';
+                return;
+            }
+
+            // Extract video ID from URL
+            const urlMatch = formData.videoUrl.match(/streamable\.com\/([a-zA-Z0-9]+)/);
+            if (!urlMatch) {
+                showError('Invalid Streamable URL. Please use format: https://streamable.com/xxxxx');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✨ Add Video to Portfolio';
+                return;
+            }
+
+            const embedId = urlMatch[1];
+            const thumbnail = `https://cdn-cf-east.streamable.com/image/${embedId}.jpg`;
+
+            // Check category for long-form
+            if (formData.category === 'longform' && !formData.videoCategory) {
+                showError('Please select a project type for long-form content.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✨ Add Video to Portfolio';
+                return;
+            }
+
+            // Show preview
+            document.getElementById('previewCategory').textContent = 
+                formData.category === 'longform' ? 'Featured Projects (Long-form)' : 'Featured Reels (Short-form)';
+            document.getElementById('previewTitle').textContent = formData.title;
+            document.getElementById('previewId').textContent = embedId;
+            document.getElementById('previewUrl').textContent = formData.videoUrl;
+
+            if (formData.category === 'longform') {
+                document.getElementById('previewTypeContainer').style.display = 'flex';
+                document.getElementById('previewType').textContent = formData.videoCategory;
+            } else {
+                document.getElementById('previewTypeContainer').style.display = 'none';
+            }
+
+            preview.classList.add('show');
+
+            // Send to server for automatic addition
+            try {
+                submitBtn.textContent = '🚀 Adding to portfolio & pushing to GitHub...';
+                
+                const response = await fetch('/add-video', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        embedId,
+                        thumbnail
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess(result.message, formData.category);
+                    // Reset form
+                    form.reset();
+                    thumbnailPreview.classList.remove('show');
+                    categoryField.classList.add('show'); // Show category field by default
+                } else {
+                    showError(result.error || 'Failed to add video');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to connect to server. Make sure the server is running (node video-manager-server.js)');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✨ Add Video to Portfolio';
+            }
+        });
+
+        function showSuccess(message, category) {
+            successMessage.innerHTML = `
+                <h4>🎉 Success!</h4>
+                <p><strong>${message}</strong></p>
+                <p style="margin-top: 10px;">✅ Video added to Work.tsx</p>
+                <p>✅ Changes committed to Git</p>
+                <p>✅ Pushed to GitHub automatically</p>
+                <p style="margin-top: 15px; padding: 10px; background: #c3e6cb; border-radius: 5px;">
+                    🚀 Your portfolio will update in a few minutes after GitHub Pages rebuilds!
+                </p>
+            `;
+            successMessage.classList.add('show');
+            successMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showError(message) {
+            errorMessage.textContent = '❌ ' + message;
+            errorMessage.classList.add('show');
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
