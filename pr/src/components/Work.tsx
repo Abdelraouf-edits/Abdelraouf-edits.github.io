@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "Test",
+    videoUrl: "https://streamable.com/tc8epx",
+    embedId: "tc8epx",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/tc8epx.jpg`,
+  },
+  {
     title: "Football Highlight Reel",
     videoUrl: "https://streamable.com/l06h1d",
     embedId: "l06h1d",
