@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "Countries you must visit in winter",
+    videoUrl: "https://streamable.com/vw9k45",
+    embedId: "vw9k45",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/vw9k45.jpg`,
+  },
+  {
     title: "Mosque of Cordoba",
     videoUrl: "https://streamable.com/zpbzqn",
     embedId: "zpbzqn",
@@ -91,27 +98,19 @@ const reels = [
 const Work = () => {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const [projectsPage, setProjectsPage] = useState(0);
-  const [reelsPage, setReelsPage] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const reelsTitleRef = useRef<HTMLDivElement>(null);
-  const reelsRef = useRef<HTMLDivElement>(null);
+  const reelsContainerRef = useRef<HTMLDivElement>(null);
 
   const PROJECTS_PER_PAGE = 4;
-  const REELS_PER_PAGE = 6;
-
   const totalProjectsPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
-  const totalReelsPages = Math.ceil(reels.length / REELS_PER_PAGE);
 
   const currentProjects = projects.slice(
     projectsPage * PROJECTS_PER_PAGE,
     (projectsPage + 1) * PROJECTS_PER_PAGE
-  );
-
-  const currentReels = reels.slice(
-    reelsPage * REELS_PER_PAGE,
-    (reelsPage + 1) * REELS_PER_PAGE
   );
 
   const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
@@ -134,17 +133,40 @@ const Work = () => {
     }
   };
 
-  const nextReelsPage = () => {
-    if (reelsPage < totalReelsPages - 1) {
-      setReelsPage(prev => prev + 1);
-      setTimeout(() => scrollToSection(reelsRef), 100);
-    }
-  };
+  // Auto-scroll functionality for Reels
+  useEffect(() => {
+    const container = reelsContainerRef.current;
+    if (!container) return;
 
-  const prevReelsPage = () => {
-    if (reelsPage > 0) {
-      setReelsPage(prev => prev - 1);
-      setTimeout(() => scrollToSection(reelsRef), 100);
+    let animationId: number;
+    
+    const scroll = () => {
+      if (isPaused) {
+        animationId = requestAnimationFrame(scroll);
+        return;
+      }
+
+      // If we've scrolled to the end, reset to start (infinite loop illusion)
+      if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 1) {
+        container.scrollLeft = 0; 
+      } else {
+        container.scrollLeft += 0.5; // Adjust speed here (0.5 is slow)
+      }
+      animationId = requestAnimationFrame(scroll);
+    };
+
+    animationId = requestAnimationFrame(scroll);
+
+    return () => cancelAnimationFrame(animationId);
+  }, [isPaused]);
+
+  const scrollReels = (direction: 'left' | 'right') => {
+    if (reelsContainerRef.current) {
+      const scrollAmount = 350; // Width of one card + gap
+      reelsContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -222,26 +244,23 @@ const Work = () => {
         );
       }
 
-      // Animate reel cards
-      if (reelsRef.current) {
-        gsap.fromTo(reelsRef.current.children,
+      // Animate reels container
+      if (reelsContainerRef.current) {
+        gsap.fromTo(reelsContainerRef.current,
           {
             opacity: 0,
             y: 60,
-            scale: 0.96,
           },
           {
             scrollTrigger: {
-              trigger: reelsRef.current,
-              start: "top 75%",
-              end: "bottom 50%",
+              trigger: reelsContainerRef.current,
+              start: "top 85%",
+              end: "bottom 70%",
               toggleActions: "play none none none",
             },
             opacity: 1,
             y: 0,
-            scale: 1,
-            duration: 0.7,
-            stagger: 0.1,
+            duration: 0.8,
             ease: "power3.out",
           }
         );
@@ -430,34 +449,36 @@ const Work = () => {
           </p>
         </div>
         
-        <div className="relative">
-          {/* Navigation Arrows for Reels */}
-          {totalReelsPages > 1 && (
-            <>
-              <button
-                onClick={prevReelsPage}
-                disabled={reelsPage === 0}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 z-10 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 disabled:hover:scale-100"
-                aria-label="Previous reels"
-              >
-                <ChevronLeft className="w-6 h-6 text-white" />
-              </button>
-              <button
-                onClick={nextReelsPage}
-                disabled={reelsPage >= totalReelsPages - 1}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 z-10 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 disabled:hover:scale-100"
-                aria-label="Next reels"
-              >
-                <ChevronRight className="w-6 h-6 text-white" />
-              </button>
-            </>
-          )}
+        <div className="relative group/reels-container"
+             onMouseEnter={() => setIsPaused(true)}
+             onMouseLeave={() => setIsPaused(false)}>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto" ref={reelsRef}>
-            {currentReels.map((reel, index) => (
+          {/* Navigation Arrows for Reels */}
+          <button
+            onClick={() => scrollReels('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 z-20 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="w-6 h-6 text-white" />
+          </button>
+          <button
+            onClick={() => scrollReels('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 z-20 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="w-6 h-6 text-white" />
+          </button>
+          
+          {/* Reels Scroll Container */}
+          <div 
+            className="flex gap-8 overflow-x-auto pb-12 pt-4 px-4 no-scrollbar scroll-smooth" 
+            ref={reelsContainerRef}
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {reels.map((reel, index) => (
             <div 
               key={index}
-              className="group relative"
+              className="group relative min-w-[300px] md:min-w-[350px] flex-shrink-0"
             >
               {/* Floating background effect */}
               <div className="absolute -inset-1 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
@@ -531,27 +552,6 @@ const Work = () => {
             </div>
           ))}
         </div>
-
-        {/* Pagination Indicator for Reels */}
-        {totalReelsPages > 1 && (
-          <div className="flex justify-center gap-2 mt-12">
-            {Array.from({ length: totalReelsPages }).map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setReelsPage(idx);
-                  setTimeout(() => scrollToSection(reelsRef), 100);
-                }}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  idx === reelsPage
-                    ? 'bg-primary w-8'
-                    : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                }`}
-                aria-label={`Go to reels page ${idx + 1}`}
-              />
-            ))}
-          </div>
-        )}
       </div>
       </div>
     </section>
