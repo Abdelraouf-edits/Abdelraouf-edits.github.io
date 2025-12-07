@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "Mosque of Cordoba",
+    videoUrl: "https://streamable.com/zpbzqn",
+    embedId: "zpbzqn",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/zpbzqn.jpg`,
+  },
+  {
     title: "Spain Trip - Flower Street in Cordoba",
     videoUrl: "https://streamable.com/md4yta",
     embedId: "md4yta",
