@@ -44,21 +44,14 @@ const projects = [
 ];
 
 const reels = [
-  {
+{
     title: "جامع قرطبة",
     videoUrl: "https://streamable.com/zpbzqn",
     embedId: "zpbzqn",
     platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/zpbzqn.jpg`,
   },
-  {
-    title: "برحلة اسبانيا - شارع الزهور في قرطبة",
-    videoUrl: "https://streamable.com/md4yta",
-    embedId: "md4yta",
-    platform: "streamable",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/md4yta.jpg`,
-  },
-  {
+{
     title: "Spain Trip - Roman Bridge",
     videoUrl: "https://streamable.com/bzr9go",
     embedId: "bzr9go",
