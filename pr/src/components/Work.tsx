@@ -198,45 +198,37 @@ const Work = () => {
     }
   };
 
-  // Auto-scroll functionality for Reels - bounces back with 5-second pause
+  // Auto-scroll functionality for Reels - smooth bounce back instantly
   useEffect(() => {
     const container = reelsContainerRef.current;
     if (!container) return;
 
     let animationId: number;
-    let pauseTimeout: ReturnType<typeof setTimeout> | null = null;
+    let currentDirection = scrollDirection;
     
     const scroll = () => {
-      if (isPaused || hasReachedEnd) {
+      if (isPaused) {
         animationId = requestAnimationFrame(scroll);
         return;
       }
 
       const maxScroll = container.scrollWidth - container.clientWidth;
       
-      if (scrollDirection === 'right') {
-        // Scrolling right
-        if (container.scrollLeft >= maxScroll - 2) {
-          // Reached right end - pause for 5 seconds then reverse
-          setHasReachedEnd(true);
-          pauseTimeout = setTimeout(() => {
-            setScrollDirection('left');
-            setHasReachedEnd(false);
-          }, 5000);
+      if (currentDirection === 'right') {
+        if (container.scrollLeft >= maxScroll - 1) {
+          // Reached right end - instantly reverse
+          currentDirection = 'left';
+          setScrollDirection('left');
         } else {
-          container.scrollLeft += 0.5;
+          container.scrollLeft += 0.3; // Smoother scroll speed
         }
       } else {
-        // Scrolling left
-        if (container.scrollLeft <= 2) {
-          // Reached left end - pause for 5 seconds then reverse
-          setHasReachedEnd(true);
-          pauseTimeout = setTimeout(() => {
-            setScrollDirection('right');
-            setHasReachedEnd(false);
-          }, 5000);
+        if (container.scrollLeft <= 1) {
+          // Reached left end - instantly reverse
+          currentDirection = 'right';
+          setScrollDirection('right');
         } else {
-          container.scrollLeft -= 0.5;
+          container.scrollLeft -= 0.3; // Smoother scroll speed
         }
       }
       
@@ -247,9 +239,8 @@ const Work = () => {
 
     return () => {
       cancelAnimationFrame(animationId);
-      if (pauseTimeout) clearTimeout(pauseTimeout);
     };
-  }, [isPaused, scrollDirection, hasReachedEnd]);
+  }, [isPaused, scrollDirection]);
 
   const scrollReels = (direction: 'left' | 'right') => {
     if (reelsContainerRef.current) {
