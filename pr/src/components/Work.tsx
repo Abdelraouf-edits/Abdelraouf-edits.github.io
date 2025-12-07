@@ -65,28 +65,28 @@ const reels = [
     platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/md4yta.jpg`,
   },
-{
+  {
     title: "Spain Trip - Roman Bridge",
     videoUrl: "https://streamable.com/bzr9go",
     embedId: "bzr9go",
     platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/bzr9go.jpg`,
   },
-{
+  {
     title: "Football Highlight Reel",
     videoUrl: "https://streamable.com/l06h1d",
     embedId: "l06h1d",
     platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/l06h1d.jpg`,
   },
-{
+  {
     title: "Mohi Visuals Style Recreation",
     videoUrl: "https://streamable.com/3ib9ax",
     embedId: "3ib9ax",
     platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/3ib9ax.jpg`,
   },
-{
+  {
     title: "Short Form Edit",
     videoUrl: "https://streamable.com/z4gi5a",
     embedId: "z4gi5a",
@@ -99,6 +99,8 @@ const Work = () => {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const [projectsPage, setProjectsPage] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [scrollDirection, setScrollDirection] = useState<'right' | 'left'>('right');
+  const [hasReachedEnd, setHasReachedEnd] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
@@ -133,7 +135,7 @@ const Work = () => {
     }
   };
 
-  // Auto-scroll functionality for Reels
+  // Auto-scroll functionality for Reels - STOPS at end
   useEffect(() => {
     const container = reelsContainerRef.current;
     if (!container) return;
@@ -141,32 +143,42 @@ const Work = () => {
     let animationId: number;
     
     const scroll = () => {
-      if (isPaused) {
+      if (isPaused || hasReachedEnd) {
         animationId = requestAnimationFrame(scroll);
         return;
       }
 
-      // If we've scrolled to the end, reset to start (infinite loop illusion)
-      if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 1) {
-        container.scrollLeft = 0; 
-      } else {
-        container.scrollLeft += 0.5; // Adjust speed here (0.5 is slow)
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      
+      if (scrollDirection === 'right') {
+        // Scrolling right - stop when we reach the end
+        if (container.scrollLeft >= maxScroll - 2) {
+          setHasReachedEnd(true);
+        } else {
+          container.scrollLeft += 0.5;
+        }
       }
+      
       animationId = requestAnimationFrame(scroll);
     };
 
     animationId = requestAnimationFrame(scroll);
 
     return () => cancelAnimationFrame(animationId);
-  }, [isPaused]);
+  }, [isPaused, scrollDirection, hasReachedEnd]);
 
   const scrollReels = (direction: 'left' | 'right') => {
     if (reelsContainerRef.current) {
-      const scrollAmount = 270; // Width of one card + gap
+      const scrollAmount = 320; // Width of one card + gap
       reelsContainerRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
+      
+      // Reset hasReachedEnd when user manually scrolls left
+      if (direction === 'left') {
+        setHasReachedEnd(false);
+      }
     }
   };
 
@@ -456,34 +468,34 @@ const Work = () => {
           {/* Navigation Arrows for Reels */}
           <button
             onClick={() => scrollReels('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-10 z-20 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 z-20 w-14 h-14 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
             aria-label="Scroll left"
           >
-            <ChevronLeft className="w-6 h-6 text-white" />
+            <ChevronLeft className="w-7 h-7 text-white" />
           </button>
           <button
             onClick={() => scrollReels('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-10 z-20 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 z-20 w-14 h-14 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
             aria-label="Scroll right"
           >
-            <ChevronRight className="w-6 h-6 text-white" />
+            <ChevronRight className="w-7 h-7 text-white" />
           </button>
           
           {/* Reels Scroll Container */}
           <div 
-            className="flex gap-5 overflow-x-auto pb-8 pt-2 px-4 no-scrollbar scroll-smooth" 
+            className="flex gap-6 overflow-x-auto pb-10 pt-2 px-4 no-scrollbar scroll-smooth" 
             ref={reelsContainerRef}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {reels.map((reel, index) => (
             <div 
               key={index}
-              className="group relative w-[210px] md:w-[270px] flex-shrink-0"
+              className="group relative w-[260px] md:w-[320px] flex-shrink-0"
             >
               {/* Floating background effect */}
-              <div className="absolute -inset-1.5 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-700" />
+              <div className="absolute -inset-2 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
               
-              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-2xl shadow-xl">
+              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-2xl shadow-2xl">
                 {/* Video Container */}
                 <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
                   {playingVideo === `reel-${index}` ? (
@@ -517,22 +529,22 @@ const Work = () => {
                       
                       {/* Play Button */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full bg-primary/90 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-xl">
-                          <Play className="w-7 h-7 text-white ml-1 fill-current" />
+                        <div className="w-20 h-20 rounded-full bg-primary/90 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-2xl">
+                          <Play className="w-9 h-9 text-white ml-1 fill-current" />
                         </div>
                       </div>
                       
                       {/* Corner Number Badge */}
-                      <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                        <span className="text-primary font-bold text-sm">{index + 1}</span>
+                      <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                        <span className="text-primary font-bold text-base">{index + 1}</span>
                       </div>
                     </div>
                   )}
                 </div>
                 
                 {/* Title */}
-                <div className="p-4 bg-card">
-                  <h3 className="text-sm md:text-base font-medium text-foreground/90 leading-tight line-clamp-2 text-center">
+                <div className="p-5 bg-card">
+                  <h3 className="text-base md:text-lg font-semibold text-foreground/90 leading-tight line-clamp-2 text-center">
                     {reel.title}
                   </h3>
                 </div>
