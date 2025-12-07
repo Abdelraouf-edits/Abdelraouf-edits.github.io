@@ -456,36 +456,36 @@ const Work = () => {
           {/* Navigation Arrows for Reels */}
           <button
             onClick={() => scrollReels('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 z-20 w-10 h-10 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-10 z-20 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
             aria-label="Scroll left"
           >
-            <ChevronLeft className="w-5 h-5 text-white" />
+            <ChevronLeft className="w-6 h-6 text-white" />
           </button>
           <button
             onClick={() => scrollReels('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 z-20 w-10 h-10 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-10 z-20 w-12 h-12 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
             aria-label="Scroll right"
           >
-            <ChevronRight className="w-5 h-5 text-white" />
+            <ChevronRight className="w-6 h-6 text-white" />
           </button>
           
           {/* Reels Scroll Container */}
           <div 
-            className="flex gap-4 overflow-x-auto pb-6 pt-2 px-4 no-scrollbar scroll-smooth" 
+            className="flex gap-5 overflow-x-auto pb-8 pt-2 px-4 no-scrollbar scroll-smooth" 
             ref={reelsContainerRef}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {reels.map((reel, index) => (
             <div 
               key={index}
-              className="group relative w-[140px] md:w-[180px] flex-shrink-0"
+              className="group relative w-[210px] md:w-[270px] flex-shrink-0"
             >
               {/* Floating background effect */}
-              <div className="absolute -inset-1 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-xl blur-md opacity-0 group-hover:opacity-100 transition-all duration-700" />
+              <div className="absolute -inset-1.5 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-700" />
               
-              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-xl shadow-lg">
+              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-2xl shadow-xl">
                 {/* Video Container */}
-                <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-lg">
+                <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
                   {playingVideo === `reel-${index}` ? (
                     reel.platform === "streamable" ? (
                       <CustomStreamablePlayer 
@@ -517,22 +517,22 @@ const Work = () => {
                       
                       {/* Play Button */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-primary/90 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-lg">
-                          <Play className="w-5 h-5 text-white ml-0.5 fill-current" />
+                        <div className="w-16 h-16 rounded-full bg-primary/90 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-xl">
+                          <Play className="w-7 h-7 text-white ml-1 fill-current" />
                         </div>
                       </div>
                       
                       {/* Corner Number Badge */}
-                      <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                        <span className="text-primary font-bold text-xs">{index + 1}</span>
+                      <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                        <span className="text-primary font-bold text-sm">{index + 1}</span>
                       </div>
                     </div>
                   )}
                 </div>
                 
                 {/* Title */}
-                <div className="p-3 bg-card">
-                  <h3 className="text-xs md:text-sm font-medium text-foreground/90 leading-tight line-clamp-2 text-center">
+                <div className="p-4 bg-card">
+                  <h3 className="text-sm md:text-base font-medium text-foreground/90 leading-tight line-clamp-2 text-center">
                     {reel.title}
                   </h3>
                 </div>
