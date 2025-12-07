@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "Imagination perfume",
+    videoUrl: "https://streamable.com/9mka3k",
+    embedId: "9mka3k",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/9mka3k.jpg`,
+  },
+  {
     title: "Delivery to all countries worldwide",
     videoUrl: "https://streamable.com/ggd33r",
     embedId: "ggd33r",
