@@ -47,11 +47,12 @@ app.post('/add-video', async (req, res) => {
     const workFilePath = path.join(__dirname, 'src', 'components', 'Work.tsx');
     let workContent = fs.readFileSync(workFilePath, 'utf8');
 
-    // Generate the new video object
+    // Generate the new video object matching the current Work.tsx format
     let newVideoObject;
     const arrayName = category === 'longform' ? 'projects' : 'reels';
     
     if (category === 'longform') {
+      // Long-form project format (Featured Projects - grid layout)
       newVideoObject = `  {
     title: "${title}",
     category: "${videoCategory}",
@@ -61,6 +62,8 @@ app.post('/add-video', async (req, res) => {
     platform: "streamable",
   },`;
     } else {
+      // Short-form reel format (Featured Reels - carousel layout)
+      // Uses the updated smaller card format: w-[260px] md:w-[320px]
       newVideoObject = `  {
     title: "${title}",
     videoUrl: "${videoUrl}",
@@ -94,7 +97,9 @@ app.post('/add-video', async (req, res) => {
 
     // Write the updated content back to Work.tsx
     fs.writeFileSync(workFilePath, workContent, 'utf8');
-    console.log('✅ Updated Work.tsx successfully (Video added to Featured Reels carousel)');
+    
+    const categoryLabel = category === 'longform' ? 'Featured Projects' : 'Featured Reels (Carousel)';
+    console.log(`✅ Updated Work.tsx successfully (Video added to ${categoryLabel})`);
 
     // Git operations
     try {
@@ -119,7 +124,7 @@ app.post('/add-video', async (req, res) => {
 
     res.json({ 
       success: true, 
-      message: `Video "${title}" added successfully and pushed to GitHub!`,
+      message: `Video "${title}" added successfully to ${categoryLabel} and pushed to GitHub!`,
       category: arrayName
     });
 
