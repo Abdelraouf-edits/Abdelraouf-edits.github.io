@@ -283,8 +283,8 @@ const CustomVideoPlayer = ({ videoId, thumbnail, title }: CustomVideoPlayerProps
           >
             <div className="relative">
               <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl scale-150 animate-pulse" />
-              <div className="relative w-20 h-20 rounded-full bg-primary backdrop-blur-sm border-2 border-primary flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-2xl">
-                <Play className="w-8 h-8 text-primary-foreground ml-1 fill-current" />
+              <div className="relative w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary backdrop-blur-sm border-2 border-primary flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-2xl">
+                <Play className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground ml-1 fill-current" />
               </div>
             </div>
           </div>
