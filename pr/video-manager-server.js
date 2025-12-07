@@ -87,9 +87,9 @@ app.post('/add-video', async (req, res) => {
       });
     }
 
-    // Insert the new video at the beginning of the array (after the opening bracket)
-    const arrayContent = match[1];
-    const updatedArrayContent = '\n' + newVideoObject + arrayContent;
+    // Insert the new video at the END of the array (before the closing bracket)
+    const arrayContent = match[1].trimEnd();
+    const updatedArrayContent = arrayContent + '\n' + newVideoObject + '\n';
     const updatedArray = `const ${arrayName} = [${updatedArrayContent}];`;
 
     // Replace the old array with the updated one

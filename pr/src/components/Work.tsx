@@ -198,12 +198,13 @@ const Work = () => {
     }
   };
 
-  // Auto-scroll functionality for Reels - STOPS at end
+  // Auto-scroll functionality for Reels - bounces back with 5-second pause
   useEffect(() => {
     const container = reelsContainerRef.current;
     if (!container) return;
 
     let animationId: number;
+    let pauseTimeout: ReturnType<typeof setTimeout> | null = null;
     
     const scroll = () => {
       if (isPaused || hasReachedEnd) {
@@ -214,11 +215,28 @@ const Work = () => {
       const maxScroll = container.scrollWidth - container.clientWidth;
       
       if (scrollDirection === 'right') {
-        // Scrolling right - stop when we reach the end
+        // Scrolling right
         if (container.scrollLeft >= maxScroll - 2) {
+          // Reached right end - pause for 5 seconds then reverse
           setHasReachedEnd(true);
+          pauseTimeout = setTimeout(() => {
+            setScrollDirection('left');
+            setHasReachedEnd(false);
+          }, 5000);
         } else {
           container.scrollLeft += 0.5;
+        }
+      } else {
+        // Scrolling left
+        if (container.scrollLeft <= 2) {
+          // Reached left end - pause for 5 seconds then reverse
+          setHasReachedEnd(true);
+          pauseTimeout = setTimeout(() => {
+            setScrollDirection('right');
+            setHasReachedEnd(false);
+          }, 5000);
+        } else {
+          container.scrollLeft -= 0.5;
         }
       }
       
@@ -227,7 +245,10 @@ const Work = () => {
 
     animationId = requestAnimationFrame(scroll);
 
-    return () => cancelAnimationFrame(animationId);
+    return () => {
+      cancelAnimationFrame(animationId);
+      if (pauseTimeout) clearTimeout(pauseTimeout);
+    };
   }, [isPaused, scrollDirection, hasReachedEnd]);
 
   const scrollReels = (direction: 'left' | 'right') => {
@@ -550,7 +571,7 @@ const Work = () => {
             ref={reelsContainerRef}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {reels.map((reel, index) => (
+            {[...reels].reverse().map((reel, index) => (
             <div 
               key={index}
               className="group relative w-[260px] md:w-[320px] flex-shrink-0"
