@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "MANTOBACO perfume",
+    videoUrl: "https://streamable.com/v29jkm",
+    embedId: "v29jkm",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/v29jkm.jpg`,
+  },
+  {
     title: "PURPOSE 50 Perfume",
     videoUrl: "https://streamable.com/p6226x",
     embedId: "p6226x",
