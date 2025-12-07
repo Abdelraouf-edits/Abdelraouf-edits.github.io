@@ -162,7 +162,7 @@ const Work = () => {
 
   const scrollReels = (direction: 'left' | 'right') => {
     if (reelsContainerRef.current) {
-      const scrollAmount = 350; // Width of one card + gap
+      const scrollAmount = 270; // Width of one card + gap
       reelsContainerRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
@@ -471,14 +471,14 @@ const Work = () => {
           
           {/* Reels Scroll Container */}
           <div 
-            className="flex gap-8 overflow-x-auto pb-12 pt-4 px-4 no-scrollbar scroll-smooth" 
+            className="flex gap-6 overflow-x-auto pb-12 pt-4 px-4 no-scrollbar scroll-smooth" 
             ref={reelsContainerRef}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {reels.map((reel, index) => (
             <div 
               key={index}
-              className="group relative min-w-[300px] md:min-w-[350px] flex-shrink-0"
+              className="group relative min-w-[200px] md:min-w-[250px] flex-shrink-0"
             >
               {/* Floating background effect */}
               <div className="absolute -inset-1 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700" />

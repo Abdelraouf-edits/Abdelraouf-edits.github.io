@@ -13,12 +13,13 @@ const PORT = 3000;
 
 // Middleware
 app.use(express.json());
-app.use(express.static(__dirname));
 
-// Serve the video manager HTML
+// Serve the video manager HTML - Defined BEFORE static to ensure it takes precedence over index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'video-manager.html'));
 });
+
+app.use(express.static(__dirname));
 
 // Add video endpoint
 app.post('/add-video', async (req, res) => {
@@ -93,7 +94,7 @@ app.post('/add-video', async (req, res) => {
 
     // Write the updated content back to Work.tsx
     fs.writeFileSync(workFilePath, workContent, 'utf8');
-    console.log('✅ Updated Work.tsx successfully');
+    console.log('✅ Updated Work.tsx successfully (Video added to Featured Reels carousel)');
 
     // Git operations
     try {
@@ -128,6 +129,103 @@ app.post('/add-video', async (req, res) => {
       success: false, 
       error: error.message 
     });
+  }
+});
+
+// Get all videos endpoint
+app.get('/videos', (req, res) => {
+  try {
+    const workFilePath = path.join(__dirname, 'src', 'components', 'Work.tsx');
+    const workContent = fs.readFileSync(workFilePath, 'utf8');
+
+    // Extract projects
+    const projectsMatch = /const projects = \[([\s\S]*?)\];/.exec(workContent);
+    const reelsMatch = /const reels = \[([\s\S]*?)\];/.exec(workContent);
+
+    res.json({
+      success: true,
+      projects: projectsMatch ? projectsMatch[1] : '',
+      reels: reelsMatch ? reelsMatch[1] : ''
+    });
+  } catch (error) {
+    console.error('Error fetching videos:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete video endpoint
+app.post('/delete-video', async (req, res) => {
+  try {
+    const { category, embedId } = req.body;
+    console.log('🗑️ Received request to delete video:', embedId);
+
+    const workFilePath = path.join(__dirname, 'src', 'components', 'Work.tsx');
+    let workContent = fs.readFileSync(workFilePath, 'utf8');
+
+    const arrayName = category === 'longform' ? 'projects' : 'reels';
+    const arrayPattern = new RegExp(`const ${arrayName} = \\[([\\s\\S]*?)\\];`, 'g');
+    
+    const match = arrayPattern.exec(workContent);
+    if (!match) {
+      return res.status(500).json({ success: false, error: 'Array not found' });
+    }
+
+    const arrayContent = match[1];
+    
+    // Parse the array content to find and remove the video
+    // We'll split by objects roughly
+    let newArrayContent = '';
+    let currentObject = '';
+    let braceCount = 0;
+    let found = false;
+
+    for (let i = 0; i < arrayContent.length; i++) {
+      const char = arrayContent[i];
+      currentObject += char;
+
+      if (char === '{') braceCount++;
+      if (char === '}') braceCount--;
+
+      if (braceCount === 0 && currentObject.trim().length > 0 && currentObject.includes('}')) {
+        // We have a complete object
+        if (currentObject.includes(embedId)) {
+          found = true;
+          // Skip this object (don't add to newArrayContent)
+        } else {
+          newArrayContent += currentObject;
+        }
+        currentObject = '';
+      }
+    }
+    
+    // Add any remaining content (whitespace/commas)
+    newArrayContent += currentObject;
+
+    if (!found) {
+      return res.status(404).json({ success: false, error: 'Video not found' });
+    }
+
+    const updatedArray = `const ${arrayName} = [${newArrayContent}];`;
+    workContent = workContent.replace(match[0], updatedArray);
+
+    fs.writeFileSync(workFilePath, workContent, 'utf8');
+    console.log('✅ Video removed from Work.tsx');
+
+    // Git operations
+    try {
+      execSync('git add src/components/Work.tsx', { cwd: __dirname, stdio: 'inherit' });
+      execSync(`git commit -m "Remove ${category} video: ${embedId}"`, { cwd: __dirname, stdio: 'inherit' });
+      execSync('git push', { cwd: __dirname, stdio: 'inherit' });
+      console.log('🎉 Changes pushed to GitHub');
+    } catch (gitError) {
+      console.error('Git error:', gitError);
+    }
+
+    res.json({ success: true });
+
+  } catch (error) {
+    console.error('Error deleting video:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
