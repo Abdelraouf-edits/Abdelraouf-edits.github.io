@@ -162,13 +162,12 @@ const Work = () => {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const [projectsPage, setProjectsPage] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [scrollDirection, setScrollDirection] = useState<'right' | 'left'>('right');
-  const [hasReachedEnd, setHasReachedEnd] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const reelsTitleRef = useRef<HTMLDivElement>(null);
   const reelsContainerRef = useRef<HTMLDivElement>(null);
+  const scrollDirectionRef = useRef<'right' | 'left'>('right');
 
   const PROJECTS_PER_PAGE = 4;
   const totalProjectsPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
@@ -204,7 +203,6 @@ const Work = () => {
     if (!container) return;
 
     let animationId: number;
-    let currentDirection = scrollDirection;
     
     const scroll = () => {
       if (isPaused) {
@@ -214,21 +212,19 @@ const Work = () => {
 
       const maxScroll = container.scrollWidth - container.clientWidth;
       
-      if (currentDirection === 'right') {
+      if (scrollDirectionRef.current === 'right') {
         if (container.scrollLeft >= maxScroll - 1) {
           // Reached right end - instantly reverse
-          currentDirection = 'left';
-          setScrollDirection('left');
+          scrollDirectionRef.current = 'left';
         } else {
-          container.scrollLeft += 0.3; // Smoother scroll speed
+          container.scrollLeft += 0.5;
         }
       } else {
         if (container.scrollLeft <= 1) {
           // Reached left end - instantly reverse
-          currentDirection = 'right';
-          setScrollDirection('right');
+          scrollDirectionRef.current = 'right';
         } else {
-          container.scrollLeft -= 0.3; // Smoother scroll speed
+          container.scrollLeft -= 0.5;
         }
       }
       
@@ -240,7 +236,7 @@ const Work = () => {
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [isPaused, scrollDirection]);
+  }, [isPaused]);
 
   const scrollReels = (direction: 'left' | 'right') => {
     if (reelsContainerRef.current) {
@@ -249,11 +245,6 @@ const Work = () => {
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
-      
-      // Reset hasReachedEnd when user manually scrolls left
-      if (direction === 'left') {
-        setHasReachedEnd(false);
-      }
     }
   };
 
