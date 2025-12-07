@@ -471,14 +471,14 @@ const Work = () => {
           
           {/* Reels Scroll Container */}
           <div 
-            className="flex gap-6 overflow-x-auto pb-12 pt-4 px-4 no-scrollbar scroll-smooth" 
+            className="flex gap-4 overflow-x-auto pb-12 pt-4 px-4 no-scrollbar scroll-smooth" 
             ref={reelsContainerRef}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {reels.map((reel, index) => (
             <div 
               key={index}
-              className="group relative min-w-[160px] md:min-w-[200px] flex-shrink-0"
+              className="group relative min-w-[120px] md:min-w-[150px] flex-shrink-0"
             >
               {/* Floating background effect */}
               <div className="absolute -inset-1 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
@@ -524,15 +524,15 @@ const Work = () => {
                           <div className="absolute inset-0 rounded-full border-2 border-primary/50 scale-125 group-hover:scale-150 transition-all duration-700" />
                           
                           {/* Play button */}
-                          <div className="relative w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary/95 backdrop-blur-md border-3 border-white/20 flex items-center justify-center group-hover:scale-125 transition-all duration-500 shadow-2xl">
-                            <Play className="w-5 h-5 md:w-6 md:h-6 text-white ml-1 fill-current drop-shadow-lg" />
+                          <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/95 backdrop-blur-md border-3 border-white/20 flex items-center justify-center group-hover:scale-125 transition-all duration-500 shadow-2xl">
+                            <Play className="w-4 h-4 md:w-5 md:h-5 text-white ml-1 fill-current drop-shadow-lg" />
                           </div>
                         </div>
                       </div>
                       
                       {/* Corner Number Badge */}
-                      <div className="absolute top-2 right-2 md:top-4 md:right-4 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/70 backdrop-blur-md border border-primary/30 flex items-center justify-center">
-                        <span className="text-primary font-bold text-xs md:text-sm">0{index + 1}</span>
+                      <div className="absolute top-2 right-2 w-6 h-6 md:w-8 md:h-8 rounded-full bg-black/70 backdrop-blur-md border border-primary/30 flex items-center justify-center">
+                        <span className="text-primary font-bold text-[10px] md:text-xs">0{index + 1}</span>
                       </div>
                     </div>
                   )}
