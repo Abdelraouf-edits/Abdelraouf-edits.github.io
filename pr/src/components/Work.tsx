@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "Spain Trip - Toledo",
+    videoUrl: "https://streamable.com/n7neq3",
+    embedId: "n7neq3",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/n7neq3.jpg`,
+  },
+  {
     title: "MANTOBACO perfume",
     videoUrl: "https://streamable.com/v29jkm",
     embedId: "v29jkm",
