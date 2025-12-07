@@ -478,14 +478,14 @@ const Work = () => {
             {reels.map((reel, index) => (
             <div 
               key={index}
-              className="group relative min-w-[160px] md:min-w-[200px] flex-shrink-0"
+              className="group relative min-w-[100px] md:min-w-[120px] flex-shrink-0"
             >
               {/* Floating background effect */}
-              <div className="absolute -inset-1 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
+              <div className="absolute -inset-1 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
               
-              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border-2 border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-2xl shadow-2xl">
+              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-xl shadow-xl">
                 {/* Video Container */}
-                <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
+                <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-lg">
                   {playingVideo === `reel-${index}` ? (
                     reel.platform === "streamable" ? (
                       <CustomStreamablePlayer 
@@ -519,32 +519,25 @@ const Work = () => {
                       {/* Enhanced Play Button */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="relative">
-                          {/* Animated rings */}
-                          <div className="absolute inset-0 rounded-full bg-primary/30 blur-2xl scale-150 group-hover:scale-200 transition-all duration-700 animate-pulse" />
-                          <div className="absolute inset-0 rounded-full border-2 border-primary/50 scale-125 group-hover:scale-150 transition-all duration-700" />
-                          
                           {/* Play button */}
-                          <div className="relative w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary/95 backdrop-blur-md border-3 border-white/20 flex items-center justify-center group-hover:scale-125 transition-all duration-500 shadow-2xl">
-                            <Play className="w-5 h-5 md:w-6 md:h-6 text-white ml-1 fill-current drop-shadow-lg" />
+                          <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/95 backdrop-blur-md border-2 border-white/20 flex items-center justify-center group-hover:scale-125 transition-all duration-500 shadow-xl">
+                            <Play className="w-3 h-3 md:w-4 md:h-4 text-white ml-0.5 fill-current drop-shadow-lg" />
                           </div>
                         </div>
                       </div>
                       
                       {/* Corner Number Badge */}
-                      <div className="absolute top-2 right-2 md:top-4 md:right-4 w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/70 backdrop-blur-md border border-primary/30 flex items-center justify-center">
-                        <span className="text-primary font-bold text-xs md:text-sm">0{index + 1}</span>
+                      <div className="absolute top-1 right-1 w-5 h-5 md:w-6 md:h-6 rounded-full bg-black/70 backdrop-blur-md border border-primary/30 flex items-center justify-center">
+                        <span className="text-primary font-bold text-[10px] md:text-xs">{index + 1}</span>
                       </div>
                     </div>
                   )}
                 </div>
                 
                 {/* Content Section */}
-                <div className="p-5 relative bg-gradient-to-br from-card via-card to-card/80">
-                  {/* Top accent line */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
+                <div className="p-2 relative bg-gradient-to-br from-card via-card to-card/80">
                   {/* Title */}
-                  <h3 className="text-base font-bold group-hover:text-primary transition-colors duration-300 leading-tight mb-3">
+                  <h3 className="text-xs font-semibold group-hover:text-primary transition-colors duration-300 leading-tight line-clamp-2">
                     {reel.title}
                   </h3>
                 </div>
