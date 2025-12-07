@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "Delivery to all countries worldwide",
+    videoUrl: "https://streamable.com/ggd33r",
+    embedId: "ggd33r",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/ggd33r.jpg`,
+  },
+  {
     title: "Spain Trip - Toledo",
     videoUrl: "https://streamable.com/n7neq3",
     embedId: "n7neq3",
