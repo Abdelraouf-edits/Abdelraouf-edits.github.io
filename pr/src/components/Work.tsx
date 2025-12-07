@@ -456,36 +456,36 @@ const Work = () => {
           {/* Navigation Arrows for Reels */}
           <button
             onClick={() => scrollReels('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-6 z-20 w-8 h-8 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-8 z-20 w-10 h-10 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
             aria-label="Scroll left"
           >
-            <ChevronLeft className="w-4 h-4 text-white" />
+            <ChevronLeft className="w-5 h-5 text-white" />
           </button>
           <button
             onClick={() => scrollReels('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-6 z-20 w-8 h-8 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-8 z-20 w-10 h-10 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
             aria-label="Scroll right"
           >
-            <ChevronRight className="w-4 h-4 text-white" />
+            <ChevronRight className="w-5 h-5 text-white" />
           </button>
           
           {/* Reels Scroll Container */}
           <div 
-            className="flex gap-2 overflow-x-auto pb-4 pt-2 px-2 no-scrollbar scroll-smooth" 
+            className="flex gap-4 overflow-x-auto pb-6 pt-2 px-4 no-scrollbar scroll-smooth" 
             ref={reelsContainerRef}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {reels.map((reel, index) => (
             <div 
               key={index}
-              className="group relative w-[60px] md:w-[70px] flex-shrink-0"
+              className="group relative w-[140px] md:w-[180px] flex-shrink-0"
             >
               {/* Floating background effect */}
-              <div className="absolute -inset-0.5 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-all duration-700" />
+              <div className="absolute -inset-1 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-xl blur-md opacity-0 group-hover:opacity-100 transition-all duration-700" />
               
-              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-lg shadow-md">
+              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-xl shadow-lg">
                 {/* Video Container */}
-                <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-md">
+                <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-lg">
                   {playingVideo === `reel-${index}` ? (
                     reel.platform === "streamable" ? (
                       <CustomStreamablePlayer 
@@ -515,24 +515,24 @@ const Work = () => {
                       {/* Gradient Overlays */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-50 group-hover:opacity-30 transition-opacity duration-500" />
                       
-                      {/* Tiny Play Button */}
+                      {/* Play Button */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-5 h-5 rounded-full bg-primary/90 backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-md">
-                          <Play className="w-2 h-2 text-white ml-0.5 fill-current" />
+                        <div className="w-12 h-12 rounded-full bg-primary/90 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-lg">
+                          <Play className="w-5 h-5 text-white ml-0.5 fill-current" />
                         </div>
                       </div>
                       
-                      {/* Tiny Corner Number Badge */}
-                      <div className="absolute top-0.5 right-0.5 w-3 h-3 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                        <span className="text-primary font-bold text-[6px]">{index + 1}</span>
+                      {/* Corner Number Badge */}
+                      <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                        <span className="text-primary font-bold text-xs">{index + 1}</span>
                       </div>
                     </div>
                   )}
                 </div>
                 
-                {/* Minimal Title */}
-                <div className="p-1 bg-card">
-                  <h3 className="text-[7px] md:text-[8px] font-medium text-foreground/80 leading-tight line-clamp-1 text-center">
+                {/* Title */}
+                <div className="p-3 bg-card">
+                  <h3 className="text-xs md:text-sm font-medium text-foreground/90 leading-tight line-clamp-2 text-center">
                     {reel.title}
                   </h3>
                 </div>
