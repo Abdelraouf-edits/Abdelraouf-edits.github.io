@@ -52,7 +52,7 @@ const reels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/zpbzqn.jpg`,
   },
   {
-    title: "Spain Trip - Flower Street in Cordoba",
+    title: "CALLEJA DE LAS FLORES",
     videoUrl: "https://streamable.com/md4yta",
     embedId: "md4yta",
     platform: "streamable",
