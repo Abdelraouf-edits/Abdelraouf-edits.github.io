@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "PURPOSE 50 Perfume",
+    videoUrl: "https://streamable.com/p6226x",
+    embedId: "p6226x",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/p6226x.jpg`,
+  },
+  {
     title: "Maracuja Oud Perfume",
     videoUrl: "https://streamable.com/y2asx7",
     embedId: "y2asx7",
