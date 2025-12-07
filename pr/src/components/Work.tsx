@@ -533,11 +533,6 @@ const Work = () => {
                           <Play className="w-9 h-9 text-white ml-1 fill-current" />
                         </div>
                       </div>
-                      
-                      {/* Corner Number Badge */}
-                      <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                        <span className="text-primary font-bold text-base">{index + 1}</span>
-                      </div>
                     </div>
                   )}
                 </div>
