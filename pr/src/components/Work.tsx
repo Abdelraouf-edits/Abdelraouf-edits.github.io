@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "Caption Bazaar Perfumes",
+    videoUrl: "https://streamable.com/2aoz7t",
+    embedId: "2aoz7t",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/2aoz7t.jpg`,
+  },
+  {
     title: "Al Hosn Palace Amendment",
     videoUrl: "https://streamable.com/jxwtm6",
     embedId: "jxwtm6",
