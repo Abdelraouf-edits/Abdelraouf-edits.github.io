@@ -45,6 +45,13 @@ const projects = [
 
 const reels = [
   {
+    title: "Matsukita perfume",
+    videoUrl: "https://streamable.com/pvtzgn",
+    embedId: "pvtzgn",
+    platform: "streamable",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/pvtzgn.jpg`,
+  },
+  {
     title: "Caption Bazaar Perfumes",
     videoUrl: "https://streamable.com/2aoz7t",
     embedId: "2aoz7t",
