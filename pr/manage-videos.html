@@ -217,6 +217,88 @@
             font-size: 0.9em;
             opacity: 0.9;
         }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dirty-indicator {
+            display: none;
+            background: rgba(255, 193, 7, 0.18);
+            color: #ad6800;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .dirty-indicator.show {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .save-order-btn {
+            background: linear-gradient(135deg, #36cfc9 0%, #1890ff 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .save-order-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(24, 144, 255, 0.35);
+        }
+
+        .save-order-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .order-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .move-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .move-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.35);
+        }
+
+        .move-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
@@ -244,14 +326,26 @@
         </div>
 
         <div class="section">
-            <h2>📹 Long-form Projects</h2>
+            <div class="section-header">
+                <h2>📹 Long-form Projects</h2>
+                <div class="section-actions">
+                    <span class="dirty-indicator" id="projectsDirtyIndicator">Order changed – save to push</span>
+                    <button class="save-order-btn" id="saveProjectsOrder" disabled>💾 Save Order</button>
+                </div>
+            </div>
             <div class="video-grid" id="projectsGrid">
                 <div class="loading">Loading projects...</div>
             </div>
         </div>
 
         <div class="section">
-            <h2>🎬 Short-form Reels</h2>
+            <div class="section-header">
+                <h2>🎬 Short-form Reels</h2>
+                <div class="section-actions">
+                    <span class="dirty-indicator" id="reelsDirtyIndicator">Order changed – save to push</span>
+                    <button class="save-order-btn" id="saveReelsOrder" disabled>💾 Save Order</button>
+                </div>
+            </div>
             <div class="video-grid" id="reelsGrid">
                 <div class="loading">Loading reels...</div>
             </div>
@@ -259,37 +353,168 @@
     </div>
 
     <script>
-        // Parse video objects from the Work.tsx arrays
-        function parseVideos(arrayContent, category) {
-            const videos = [];
-            const regex = /\{[\s\S]*?\}/g;
-            const matches = arrayContent.match(regex);
-            
-            if (!matches) return videos;
+        const managerState = {
+            longform: {
+                data: [],
+                grid: document.getElementById('projectsGrid'),
+                saveButton: document.getElementById('saveProjectsOrder'),
+                indicator: document.getElementById('projectsDirtyIndicator'),
+                countLabel: document.getElementById('projectsCount'),
+                emptyCopy: 'No long-form projects yet'
+            },
+            shortform: {
+                data: [],
+                grid: document.getElementById('reelsGrid'),
+                saveButton: document.getElementById('saveReelsOrder'),
+                indicator: document.getElementById('reelsDirtyIndicator'),
+                countLabel: document.getElementById('reelsCount'),
+                emptyCopy: 'No short-form reels yet'
+            }
+        };
 
-            matches.forEach(match => {
-                const titleMatch = match.match(/title:\s*["']([^"']+)["']/);
-                const categoryMatch = match.match(/category:\s*["']([^"']+)["']/);
-                const videoUrlMatch = match.match(/videoUrl:\s*["']([^"']+)["']/);
-                const embedIdMatch = match.match(/embedId:\s*["']([^"']+)["']/);
-                const thumbnailMatch = match.match(/thumbnail:\s*`([^`]+)`/);
+        Object.entries(managerState).forEach(([category, config]) => {
+            config.saveButton.addEventListener('click', () => saveOrder(category));
+        });
 
-                if (embedIdMatch) {
-                    videos.push({
-                        title: titleMatch ? titleMatch[1] : 'Untitled',
-                        category: categoryMatch ? categoryMatch[1] : '',
-                        videoUrl: videoUrlMatch ? videoUrlMatch[1] : '',
-                        embedId: embedIdMatch[1],
-                        thumbnail: thumbnailMatch ? thumbnailMatch[1] : '',
-                        categoryType: category
-                    });
-                }
-            });
+        function setDirty(category, isDirty) {
+            const config = managerState[category];
+            config.dirty = isDirty;
 
-            return videos;
+            if (isDirty) {
+                config.indicator.classList.add('show');
+            } else {
+                config.indicator.classList.remove('show');
+            }
+
+            config.saveButton.disabled = !isDirty;
         }
 
-        // Show message
+        function updateStats() {
+            managerState.longform.countLabel.textContent = managerState.longform.data.length;
+            managerState.shortform.countLabel.textContent = managerState.shortform.data.length;
+        }
+
+        function createVideoCard(video, index, category) {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+
+            const img = document.createElement('img');
+            img.src = video.thumbnail || `https://cdn-cf-east.streamable.com/image/${video.embedId}.jpg`;
+            img.alt = video.title || 'Video thumbnail';
+            img.onerror = function () {
+                this.src = 'https://via.placeholder.com/300x180?text=No+Preview';
+            };
+            card.appendChild(img);
+
+            const titleEl = document.createElement('div');
+            titleEl.className = 'video-title';
+            titleEl.textContent = video.title || 'Untitled';
+            card.appendChild(titleEl);
+
+            if (category === 'longform' && video.category) {
+                const categoryEl = document.createElement('div');
+                categoryEl.className = 'video-category';
+                categoryEl.textContent = video.category;
+                card.appendChild(categoryEl);
+            }
+
+            const idEl = document.createElement('div');
+            idEl.className = 'video-id';
+            idEl.textContent = `ID: ${video.embedId}`;
+            card.appendChild(idEl);
+
+            const orderControls = document.createElement('div');
+            orderControls.className = 'order-controls';
+
+            const upBtn = document.createElement('button');
+            upBtn.className = 'move-btn';
+            upBtn.textContent = '⬆️ Move Up';
+            upBtn.disabled = index === 0;
+            upBtn.addEventListener('click', () => moveVideo(category, index, -1));
+            orderControls.appendChild(upBtn);
+
+            const downBtn = document.createElement('button');
+            downBtn.className = 'move-btn';
+            downBtn.textContent = '⬇️ Move Down';
+            downBtn.disabled = index === managerState[category].data.length - 1;
+            downBtn.addEventListener('click', () => moveVideo(category, index, 1));
+            orderControls.appendChild(downBtn);
+
+            card.appendChild(orderControls);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = '🗑️ Delete Video';
+            deleteBtn.addEventListener('click', () => deleteVideo(category, video.embedId, video.title || video.embedId));
+            card.appendChild(deleteBtn);
+
+            return card;
+        }
+
+        function renderVideos(category) {
+            const config = managerState[category];
+            const container = config.grid;
+            container.innerHTML = '';
+
+            if (!config.data.length) {
+                container.innerHTML = `<div class="empty-state">${config.emptyCopy}</div>`;
+                return;
+            }
+
+            config.data.forEach((video, index) => {
+                container.appendChild(createVideoCard(video, index, category));
+            });
+        }
+
+        function moveVideo(category, index, direction) {
+            const config = managerState[category];
+            const newIndex = index + direction;
+
+            if (newIndex < 0 || newIndex >= config.data.length) {
+                return;
+            }
+
+            const [item] = config.data.splice(index, 1);
+            config.data.splice(newIndex, 0, item);
+
+            renderVideos(category);
+            setDirty(category, true);
+        }
+
+        async function saveOrder(category) {
+            const config = managerState[category];
+            if (!config.dirty) {
+                return;
+            }
+
+            const embedOrder = config.data.map((video) => video.embedId);
+            const originalLabel = config.saveButton.textContent;
+            config.saveButton.disabled = true;
+            config.saveButton.textContent = 'Saving...';
+
+            try {
+                const response = await fetch('/update-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category, order: embedOrder })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to save new order.');
+                }
+
+                setDirty(category, false);
+                showMessage('✅ Order updated and pushed to GitHub!', true);
+            } catch (error) {
+                showMessage('❌ ' + error.message, false);
+            } finally {
+                config.saveButton.textContent = originalLabel;
+                config.saveButton.disabled = !config.dirty;
+            }
+        }
+
         function showMessage(text, isSuccess) {
             const message = document.createElement('div');
             message.className = `message ${isSuccess ? 'success-msg' : 'error-msg'}`;
@@ -301,29 +526,6 @@
             }, 4000);
         }
 
-        // Create video card
-        function createVideoCard(video) {
-            const card = document.createElement('div');
-            card.className = 'video-card';
-            
-            const img = video.thumbnail 
-                ? `<img src="${video.thumbnail}" alt="${video.title}" onerror="this.src='https://via.placeholder.com/300x180?text=No+Preview'">` 
-                : '<img src="https://via.placeholder.com/300x180?text=No+Preview" alt="No preview">';
-
-            card.innerHTML = `
-                ${img}
-                <div class="video-title">${video.title}</div>
-                ${video.category ? `<div class="video-category">${video.category}</div>` : ''}
-                <div class="video-id">ID: ${video.embedId}</div>
-                <button class="delete-btn" onclick="deleteVideo('${video.categoryType}', '${video.embedId}', '${video.title.replace(/'/g, "\\'")}')">
-                    🗑️ Delete Video
-                </button>
-            `;
-
-            return card;
-        }
-
-        // Delete video
         async function deleteVideo(category, embedId, title) {
             if (!confirm(`Are you sure you want to delete "${title}"?\n\nThis action cannot be undone and will be pushed to GitHub.`)) {
                 return;
@@ -342,10 +544,7 @@
 
                 if (data.success) {
                     showMessage('✅ Video deleted and pushed to GitHub!', true);
-                    // Reload the page after 2 seconds
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
+                    await loadVideos(false);
                 } else {
                     showMessage('❌ Error: ' + data.error, false);
                 }
@@ -354,55 +553,39 @@
             }
         }
 
-        // Load videos
-        async function loadVideos() {
+        async function loadVideos(showErrorToast = true) {
             try {
                 const response = await fetch('/videos');
                 const data = await response.json();
 
                 if (!data.success) {
-                    throw new Error(data.error);
+                    throw new Error(data.error || 'Failed to load videos.');
                 }
 
-                const projects = parseVideos(data.projects, 'longform');
-                const reels = parseVideos(data.reels, 'shortform');
+                managerState.longform.data = Array.isArray(data.projects)
+                    ? data.projects.map((video) => ({ ...video }))
+                    : [];
+                managerState.shortform.data = Array.isArray(data.reels)
+                    ? data.reels.map((video) => ({ ...video }))
+                    : [];
 
-                // Update stats
-                document.getElementById('projectsCount').textContent = projects.length;
-                document.getElementById('reelsCount').textContent = reels.length;
-
-                // Render projects
-                const projectsGrid = document.getElementById('projectsGrid');
-                projectsGrid.innerHTML = '';
-                
-                if (projects.length === 0) {
-                    projectsGrid.innerHTML = '<div class="empty-state">No long-form projects yet</div>';
-                } else {
-                    projects.forEach(video => {
-                        projectsGrid.appendChild(createVideoCard(video));
-                    });
-                }
-
-                // Render reels
-                const reelsGrid = document.getElementById('reelsGrid');
-                reelsGrid.innerHTML = '';
-                
-                if (reels.length === 0) {
-                    reelsGrid.innerHTML = '<div class="empty-state">No short-form reels yet</div>';
-                } else {
-                    reels.forEach(video => {
-                        reelsGrid.appendChild(createVideoCard(video));
-                    });
-                }
-
+                renderVideos('longform');
+                renderVideos('shortform');
+                updateStats();
+                setDirty('longform', false);
+                setDirty('shortform', false);
             } catch (error) {
-                showMessage('❌ Failed to load videos: ' + error.message, false);
-                document.getElementById('projectsGrid').innerHTML = '<div class="empty-state">Failed to load videos</div>';
-                document.getElementById('reelsGrid').innerHTML = '<div class="empty-state">Failed to load videos</div>';
+                if (showErrorToast) {
+                    showMessage('❌ Failed to load videos: ' + error.message, false);
+                }
+
+                managerState.longform.countLabel.textContent = '-';
+                managerState.shortform.countLabel.textContent = '-';
+                managerState.longform.grid.innerHTML = '<div class="empty-state">Failed to load videos</div>';
+                managerState.shortform.grid.innerHTML = '<div class="empty-state">Failed to load videos</div>';
             }
         }
 
-        // Load videos on page load
         loadVideos();
     </script>
 </body>

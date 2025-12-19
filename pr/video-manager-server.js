@@ -11,10 +11,203 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = 3000;
 
+const WORK_FILE_PATH = path.join(__dirname, 'src', 'components', 'Work.tsx');
+const WORK_RELATIVE_PATH = path.relative(__dirname, WORK_FILE_PATH).replace(/\\/g, '/');
+
+const escapeDoubleQuotes = (value = '') =>
+  value
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\r?\n/g, '\\n');
+
+const escapeTemplateValue = (value = '') =>
+  value
+    .replace(/\\/g, '\\\\')
+    .replace(/`/g, '\\`')
+    .replace(/\r?\n/g, '\\n');
+
+const formatGitError = (error) => {
+  if (!error) {
+    return 'Unknown git error';
+  }
+
+  if (error.stderr) {
+    const stderr = error.stderr.toString().trim();
+    if (stderr) return stderr;
+  }
+
+  if (error.stdout) {
+    const stdout = error.stdout.toString().trim();
+    if (stdout) return stdout;
+  }
+
+  return error.message || 'Unknown git error';
+};
+
+const runGitCommand = (command) => {
+  return execSync(command, {
+    cwd: __dirname,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    encoding: 'utf8',
+  });
+};
+
+const isGitRepo = () => {
+  try {
+    const result = runGitCommand('git rev-parse --is-inside-work-tree').trim();
+    return result === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const ensureGitConfig = () => {
+  try {
+    const name = runGitCommand('git config --get user.name').trim();
+    if (!name) {
+      runGitCommand('git config user.name "Portfolio Video Manager"');
+    }
+  } catch {
+    runGitCommand('git config user.name "Portfolio Video Manager"');
+  }
+
+  try {
+    const email = runGitCommand('git config --get user.email').trim();
+    if (!email) {
+      runGitCommand('git config user.email "video-manager@local"');
+    }
+  } catch {
+    runGitCommand('git config user.email "video-manager@local"');
+  }
+};
+
+const quoteForShell = (value = '') => value.replace(/"/g, '\\"');
+
+const stageCommitPush = (message, files = [WORK_RELATIVE_PATH]) => {
+  if (!isGitRepo()) {
+    return {
+      success: false,
+      error: 'Git repository not detected. Changes were saved locally but were not committed.',
+      stage: 'repository',
+    };
+  }
+
+  const addCommand = `git add -- ${files.map((file) => `"${file}"`).join(' ')}`;
+
+  try {
+    runGitCommand(addCommand);
+    const stagedFiles = runGitCommand('git diff --cached --name-only').trim();
+
+    if (!stagedFiles) {
+      runGitCommand('git reset');
+      return { success: true, skipped: true, message: 'No changes detected; skipped git commit.' };
+    }
+
+    ensureGitConfig();
+    runGitCommand(`git commit -m "${quoteForShell(message)}"`);
+  } catch (error) {
+    return { success: false, error: formatGitError(error), stage: 'commit' };
+  }
+
+  try {
+    runGitCommand('git push');
+  } catch (error) {
+    return { success: false, error: formatGitError(error), stage: 'push', committed: true };
+  }
+
+  return { success: true };
+};
+
+const readWorkFile = () => fs.readFileSync(WORK_FILE_PATH, 'utf8');
+
+const parseWorkArray = (workContent, arrayName) => {
+  const arrayRegex = new RegExp(`const ${arrayName} = \\[([\\s\\S]*?)\\];`);
+  const match = arrayRegex.exec(workContent);
+
+  if (!match) {
+    throw new Error(`Could not find ${arrayName} array in Work.tsx`);
+  }
+
+  let items;
+  try {
+    items = new Function(`return [${match[1]}];`)();
+  } catch (error) {
+    throw new Error(`Failed to parse ${arrayName} array: ${error.message}`);
+  }
+
+  return {
+    items,
+    fullMatch: match[0],
+  };
+};
+
+const serializeItem = (arrayName, item) => {
+  const cleaned = {
+    title: escapeDoubleQuotes(item.title ?? ''),
+    videoUrl: escapeDoubleQuotes(item.videoUrl ?? ''),
+    embedId: escapeDoubleQuotes(item.embedId ?? ''),
+    thumbnail: escapeTemplateValue(item.thumbnail ?? ''),
+    platform: escapeDoubleQuotes(item.platform ?? 'streamable'),
+    category: escapeDoubleQuotes(item.category ?? ''),
+  };
+
+  const lines = [
+    '  {',
+    `    title: "${cleaned.title}",`,
+  ];
+
+  if (arrayName === 'projects') {
+    lines.push(`    category: "${cleaned.category}",`);
+  }
+
+  lines.push(
+    `    videoUrl: "${cleaned.videoUrl}",`,
+    `    embedId: "${cleaned.embedId}",`,
+    `    thumbnail: \`${cleaned.thumbnail}\`,`,
+    `    platform: "${cleaned.platform}",`,
+    '  },'
+  );
+
+  return lines.join('\n');
+};
+
+const buildArrayString = (arrayName, items) => {
+  if (!Array.isArray(items) || items.length === 0) {
+    return `const ${arrayName} = [];`;
+  }
+
+  const serialized = items.map((item) => serializeItem(arrayName, item)).join('\n\n');
+  return `const ${arrayName} = [\n${serialized}\n];`;
+};
+
+const updateWorkArray = (arrayName, modifier) => {
+  const workContent = readWorkFile();
+  const { items, fullMatch } = parseWorkArray(workContent, arrayName);
+  const itemsCopy = items.map((item) => ({ ...item }));
+  const modified = modifier(itemsCopy);
+  const finalItems = Array.isArray(modified) ? modified : itemsCopy;
+  const updatedArray = buildArrayString(arrayName, finalItems);
+  const updatedContent = workContent.replace(fullMatch, updatedArray);
+  fs.writeFileSync(WORK_FILE_PATH, updatedContent, 'utf8');
+
+  return { updatedItems: finalItems };
+};
+
+const getWorkData = () => {
+  const workContent = readWorkFile();
+  const { items: projects } = parseWorkArray(workContent, 'projects');
+  const { items: reels } = parseWorkArray(workContent, 'reels');
+
+  return {
+    projects: projects.map((item) => ({ ...item })),
+    reels: reels.map((item) => ({ ...item })),
+  };
+};
+
 // Middleware
 app.use(express.json());
 
-// Serve the video manager HTML - Defined BEFORE static to ensure it takes precedence over index.html
+// Serve the video manager HTML before static assets
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'video-manager.html'));
 });
@@ -26,135 +219,69 @@ app.post('/add-video', async (req, res) => {
   try {
     const { category, title, videoUrl, videoCategory, embedId, thumbnail } = req.body;
 
-    console.log('📹 Received request to add video:', title);
-
-    // Validate input
-    if (!title || !videoUrl || !embedId) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Missing required fields' 
-      });
+    if (!title || !videoUrl || !embedId || !category) {
+      return res.status(400).json({ success: false, error: 'Missing required fields.' });
     }
 
     if (category === 'longform' && !videoCategory) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Project type required for long-form content' 
-      });
+      return res.status(400).json({ success: false, error: 'Project type required for long-form content.' });
     }
 
-    // Read Work.tsx
-    const workFilePath = path.join(__dirname, 'src', 'components', 'Work.tsx');
-    let workContent = fs.readFileSync(workFilePath, 'utf8');
-
-    // Generate the new video object matching the current Work.tsx format
-    let newVideoObject;
     const arrayName = category === 'longform' ? 'projects' : 'reels';
-    
-    if (category === 'longform') {
-      // Long-form project format (Featured Projects - grid layout)
-      newVideoObject = `  {
-    title: "${title}",
-    category: "${videoCategory}",
-    videoUrl: "${videoUrl}",
-    embedId: "${embedId}",
-    thumbnail: \`${thumbnail}\`,
-    platform: "streamable",
-  },`;
-    } else {
-      // Short-form reel format (Featured Reels - carousel layout)
-      // Uses the updated smaller card format: w-[260px] md:w-[320px]
-      newVideoObject = `  {
-    title: "${title}",
-    videoUrl: "${videoUrl}",
-    embedId: "${embedId}",
-    platform: "streamable",
-    thumbnail: \`${thumbnail}\`,
-  },`;
-    }
 
-    // Find the array and add the new video
-    const arrayPattern = new RegExp(
-      `const ${arrayName} = \\[([\\s\\S]*?)\\];`,
-      'g'
-    );
+    const { updatedItems } = updateWorkArray(arrayName, (items) => {
+      if (items.some((item) => item.embedId === embedId)) {
+        throw new Error('A video with this embedId already exists.');
+      }
 
-    const match = arrayPattern.exec(workContent);
-    if (!match) {
-      return res.status(500).json({ 
-        success: false, 
-        error: `Could not find ${arrayName} array in Work.tsx` 
-      });
-    }
+      const videoEntry = {
+        title,
+        videoUrl,
+        embedId,
+        thumbnail: thumbnail || `https://cdn-cf-east.streamable.com/image/${embedId}.jpg`,
+        platform: 'streamable',
+      };
 
-    // Insert the new video at the END of the array (before the closing bracket)
-    const arrayContent = match[1].trimEnd();
-    const updatedArrayContent = arrayContent + '\n' + newVideoObject + '\n';
-    const updatedArray = `const ${arrayName} = [${updatedArrayContent}];`;
+      if (arrayName === 'projects') {
+        videoEntry.category = videoCategory;
+      }
 
-    // Replace the old array with the updated one
-    workContent = workContent.replace(match[0], updatedArray);
-
-    // Write the updated content back to Work.tsx
-    fs.writeFileSync(workFilePath, workContent, 'utf8');
-    
-    const categoryLabel = category === 'longform' ? 'Featured Projects' : 'Featured Reels (Carousel)';
-    console.log(`✅ Updated Work.tsx successfully (Video added to ${categoryLabel})`);
-
-    // Git operations
-    try {
-      console.log('🔄 Committing changes...');
-      execSync('git add src/components/Work.tsx', { cwd: __dirname, stdio: 'inherit' });
-      
-      const commitMessage = `Add ${category === 'longform' ? 'project' : 'reel'}: ${title}`;
-      execSync(`git commit -m "${commitMessage}"`, { cwd: __dirname, stdio: 'inherit' });
-      
-      console.log('📤 Pushing to GitHub...');
-      execSync('git push', { cwd: __dirname, stdio: 'inherit' });
-      
-      console.log('🎉 Successfully pushed to GitHub!');
-    } catch (gitError) {
-      console.error('Git error:', gitError.message);
-      return res.status(500).json({ 
-        success: false, 
-        error: 'File updated but git push failed. You may need to push manually.',
-        fileUpdated: true 
-      });
-    }
-
-    res.json({ 
-      success: true, 
-      message: `Video "${title}" added successfully to ${categoryLabel} and pushed to GitHub!`,
-      category: arrayName
+      items.push(videoEntry);
+      return items;
     });
 
+    const commitLabel = arrayName === 'projects' ? 'project' : 'reel';
+    const gitResult = stageCommitPush(`Add ${commitLabel}: ${title}`);
+
+    if (!gitResult.success) {
+      return res.status(500).json({
+        success: false,
+        error: `${gitResult.stage === 'repository' ? 'Git repository not found.' : gitResult.error}`,
+        fileUpdated: true,
+        git: gitResult,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Video "${title}" added successfully and pushed to GitHub.`,
+      category: arrayName,
+      totalCount: updatedItems.length,
+    });
   } catch (error) {
     console.error('Error adding video:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // Get all videos endpoint
 app.get('/videos', (req, res) => {
   try {
-    const workFilePath = path.join(__dirname, 'src', 'components', 'Work.tsx');
-    const workContent = fs.readFileSync(workFilePath, 'utf8');
-
-    // Extract projects
-    const projectsMatch = /const projects = \[([\s\S]*?)\];/.exec(workContent);
-    const reelsMatch = /const reels = \[([\s\S]*?)\];/.exec(workContent);
-
-    res.json({
-      success: true,
-      projects: projectsMatch ? projectsMatch[1] : '',
-      reels: reelsMatch ? reelsMatch[1] : ''
-    });
+    const data = getWorkData();
+    res.json({ success: true, ...data });
   } catch (error) {
     console.error('Error fetching videos:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -162,74 +289,98 @@ app.get('/videos', (req, res) => {
 app.post('/delete-video', async (req, res) => {
   try {
     const { category, embedId } = req.body;
-    console.log('🗑️ Received request to delete video:', embedId);
 
-    const workFilePath = path.join(__dirname, 'src', 'components', 'Work.tsx');
-    let workContent = fs.readFileSync(workFilePath, 'utf8');
+    if (!category || !embedId) {
+      return res.status(400).json({ success: false, error: 'Missing category or embedId.' });
+    }
 
     const arrayName = category === 'longform' ? 'projects' : 'reels';
-    const arrayPattern = new RegExp(`const ${arrayName} = \\[([\\s\\S]*?)\\];`, 'g');
-    
-    const match = arrayPattern.exec(workContent);
-    if (!match) {
-      return res.status(500).json({ success: false, error: 'Array not found' });
-    }
 
-    const arrayContent = match[1];
-    
-    // Parse the array content to find and remove the video
-    // We'll split by objects roughly
-    let newArrayContent = '';
-    let currentObject = '';
-    let braceCount = 0;
-    let found = false;
+    let removedVideoTitle = embedId;
 
-    for (let i = 0; i < arrayContent.length; i++) {
-      const char = arrayContent[i];
-      currentObject += char;
+    const { updatedItems } = updateWorkArray(arrayName, (items) => {
+      const index = items.findIndex((item) => item.embedId === embedId);
 
-      if (char === '{') braceCount++;
-      if (char === '}') braceCount--;
-
-      if (braceCount === 0 && currentObject.trim().length > 0 && currentObject.includes('}')) {
-        // We have a complete object
-        if (currentObject.includes(embedId)) {
-          found = true;
-          // Skip this object (don't add to newArrayContent)
-        } else {
-          newArrayContent += currentObject;
-        }
-        currentObject = '';
+      if (index === -1) {
+        throw new Error('Video not found.');
       }
-    }
-    
-    // Add any remaining content (whitespace/commas)
-    newArrayContent += currentObject;
 
-    if (!found) {
-      return res.status(404).json({ success: false, error: 'Video not found' });
-    }
+      removedVideoTitle = items[index].title || embedId;
+      items.splice(index, 1);
+      return items;
+    });
 
-    const updatedArray = `const ${arrayName} = [${newArrayContent}];`;
-    workContent = workContent.replace(match[0], updatedArray);
+    const commitLabel = arrayName === 'projects' ? 'project' : 'reel';
+    const gitResult = stageCommitPush(`Remove ${commitLabel}: ${embedId}`);
 
-    fs.writeFileSync(workFilePath, workContent, 'utf8');
-    console.log('✅ Video removed from Work.tsx');
-
-    // Git operations
-    try {
-      execSync('git add src/components/Work.tsx', { cwd: __dirname, stdio: 'inherit' });
-      execSync(`git commit -m "Remove ${category} video: ${embedId}"`, { cwd: __dirname, stdio: 'inherit' });
-      execSync('git push', { cwd: __dirname, stdio: 'inherit' });
-      console.log('🎉 Changes pushed to GitHub');
-    } catch (gitError) {
-      console.error('Git error:', gitError);
+    if (!gitResult.success) {
+      return res.status(500).json({
+        success: false,
+        error: `${gitResult.stage === 'repository' ? 'Git repository not found.' : gitResult.error}`,
+        fileUpdated: true,
+        git: gitResult,
+      });
     }
 
-    res.json({ success: true });
-
+    res.json({ success: true, title: removedVideoTitle, remaining: updatedItems.length });
   } catch (error) {
     console.error('Error deleting video:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update order endpoint
+app.post('/update-order', (req, res) => {
+  try {
+    const { category, order } = req.body;
+
+    if (!category || !Array.isArray(order)) {
+      return res.status(400).json({ success: false, error: 'Category and order array are required.' });
+    }
+
+    const arrayName = category === 'longform' ? 'projects' : category === 'shortform' ? 'reels' : null;
+
+    if (!arrayName) {
+      return res.status(400).json({ success: false, error: 'Invalid category provided.' });
+    }
+
+    const seen = new Set();
+    for (const id of order) {
+      if (seen.has(id)) {
+        return res.status(400).json({ success: false, error: `Duplicate embedId in order payload: ${id}` });
+      }
+      seen.add(id);
+    }
+
+    const { updatedItems } = updateWorkArray(arrayName, (items) => {
+      const idToVideo = new Map(items.map((video) => [video.embedId, video]));
+
+      const missing = order.filter((id) => !idToVideo.has(id));
+      if (missing.length) {
+        throw new Error(`Embed IDs not found: ${missing.join(', ')}`);
+      }
+
+      const orderedVideos = order.map((id) => idToVideo.get(id));
+      const leftovers = items.filter((video) => !seen.has(video.embedId));
+
+      return [...orderedVideos, ...leftovers];
+    });
+
+    const sectionLabel = arrayName === 'projects' ? 'projects' : 'reels';
+    const gitResult = stageCommitPush(`Reorder ${sectionLabel}`);
+
+    if (!gitResult.success) {
+      return res.status(500).json({
+        success: false,
+        error: `${gitResult.stage === 'repository' ? 'Git repository not found.' : gitResult.error}`,
+        fileUpdated: true,
+        git: gitResult,
+      });
+    }
+
+    res.json({ success: true, totalCount: updatedItems.length });
+  } catch (error) {
+    console.error('Error updating video order:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
