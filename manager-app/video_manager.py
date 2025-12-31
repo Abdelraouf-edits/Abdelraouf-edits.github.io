@@ -351,12 +351,22 @@ class VideoManagerApp:
             self.set_status("Installing npm packages (first run)...", Colors.INFO)
             self.root.update()
             
+            # Security: Find npm executable to avoid shell=True
+            npm_cmd = shutil.which('npm')
+            if not npm_cmd:
+                # Fallback for Windows if 'npm' not in PATH but 'npm.cmd' is
+                npm_cmd = shutil.which('npm.cmd')
+            
+            if not npm_cmd:
+                raise Exception("npm executable not found")
+
             result = subprocess.run(
-                ['npm', 'install'],
+                [npm_cmd, 'install'],
                 cwd=str(self.pr_path),
                 capture_output=True,
                 text=True,
-                shell=True
+                shell=False,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
             )
             
             if result.returncode != 0:
@@ -447,14 +457,21 @@ class VideoManagerApp:
     
     def run_git_command(self, args):
         """Run a git command and return result."""
-        result = subprocess.run(
-            ['git'] + args,
-            cwd=str(self.repo_root),
-            capture_output=True,
-            text=True,
-            shell=True
-        )
-        return result
+        # Security: shell=False to prevent command injection
+        # On Windows, git is usually in PATH, so we can call it directly
+        try:
+            result = subprocess.run(
+                ['git'] + args,
+                cwd=str(self.repo_root),
+                capture_output=True,
+                text=True,
+                shell=False,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+            )
+            return result
+        except FileNotFoundError:
+            # Fallback if git is not found (though ensure_tools checks it)
+            return subprocess.CompletedProcess(args, 1, "", "Git executable not found")
     
     def check_updates_async(self):
         """Check for updates in background thread."""
@@ -540,12 +557,16 @@ class VideoManagerApp:
             self.set_status("Updating dependencies...", Colors.INFO)
             self.root.update()
             
-            subprocess.run(
-                ['npm', 'install', '--silent'],
-                cwd=str(self.pr_path),
-                capture_output=True,
-                shell=True
-            )
+            # Security: Use shutil.which for npm
+            npm_cmd = shutil.which('npm') or shutil.which('npm.cmd')
+            if npm_cmd:
+                subprocess.run(
+                    [npm_cmd, 'install', '--silent'],
+                    cwd=str(self.pr_path),
+                    capture_output=True,
+                    shell=False,
+                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+                )
             
             self.set_status("Updates applied successfully!", Colors.SUCCESS)
             self.set_update_indicator('uptodate', 'Updated successfully')
