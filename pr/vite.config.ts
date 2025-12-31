@@ -14,14 +14,18 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  }, // <-- fixed: added missing comma
-  // For a user site (Abdelraouf-edits.github.io) use base "/"
+  },
   base: mode === "production" ? "/" : "/",
   build: {
     outDir: "dist",
     assetsDir: "assets",
     sourcemap: false,
     minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -31,5 +35,8 @@ export default defineConfig(({ mode }) => ({
         },
       },
     },
+  },
+  optimizeDeps: {
+    include: ["gsap", "lucide-react"],
   },
 }));

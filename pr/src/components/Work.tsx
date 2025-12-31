@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ExternalLink, Play, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo, useMemo } from "react";
 import CustomVideoPlayer from "@/components/ui/CustomVideoPlayer";
 import CustomStreamablePlayer from "@/components/ui/CustomStreamablePlayer";
 import gsap from "gsap";
@@ -151,6 +151,81 @@ const reels = [
   },
 ];
 
+// Memoized Reel Card Component for performance optimization
+const ReelCard = memo(({ 
+  reel, 
+  index, 
+  playingVideo, 
+  onPlayClick 
+}: {
+  reel: typeof reels[0],
+  index: number,
+  playingVideo: string | null,
+  onPlayClick: (id: string) => void
+}) => (
+  <div 
+    key={index}
+    className="group relative w-[260px] md:w-[320px] flex-shrink-0"
+  >
+    {/* Floating background effect */}
+    <div className="absolute -inset-2 bg-gradient-to-b from-primary/15 via-primary/10 to-primary/15 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-all duration-700" />
+    
+    <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-2xl shadow-2xl">
+      {/* Video Container */}
+      <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
+        {playingVideo === `reel-${index}` ? (
+          reel.platform === "streamable" ? (
+            <CustomStreamablePlayer 
+              videoId={reel.embedId}
+              thumbnail={reel.thumbnail}
+              title={reel.title}
+            />
+          ) : (
+            <CustomVideoPlayer 
+              videoId={reel.embedId}
+              thumbnail={reel.thumbnail}
+              title={reel.title}
+            />
+          )
+        ) : (
+          <div 
+            className="relative w-full h-full cursor-pointer"
+            onClick={() => onPlayClick(`reel-${index}`)}
+          >
+            {/* Thumbnail */}
+            <img 
+              src={reel.thumbnail}
+              alt={reel.title}
+              className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
+            />
+            
+            {/* Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-50 group-hover:opacity-30 transition-opacity duration-500" />
+            
+            {/* Play Button */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-primary/90 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-2xl">
+                <Play className="w-9 h-9 text-white ml-1 fill-current" />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Title */}
+      <div className="p-5 bg-card">
+        <h3 className="text-base md:text-lg font-semibold text-foreground/90 leading-tight line-clamp-2 text-center">
+          {reel.title}
+        </h3>
+      </div>
+    </Card>
+  </div>
+));
+
+ReelCard.displayName = 'ReelCard';
+
 const Work = () => {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const [projectsPage, setProjectsPage] = useState(0);
@@ -190,44 +265,48 @@ const Work = () => {
     }
   };
 
-  // Auto-scroll functionality for Reels - smooth bounce back instantly
+  // Auto-scroll functionality for Reels - optimized with CSS scroll-behavior
   useEffect(() => {
     const container = reelsContainerRef.current;
     if (!container) return;
 
-    let animationId: number;
+    let scrollInterval: NodeJS.Timeout;
+    const SCROLL_SPEED = 2.5; // pixels per frame
+    const PAUSE_AT_ENDS = 2000; // milliseconds to pause at ends
     
-    const scroll = () => {
-      if (isPaused) {
-        animationId = requestAnimationFrame(scroll);
-        return;
-      }
+    const autoScroll = () => {
+      if (isPaused) return;
 
       const maxScroll = container.scrollWidth - container.clientWidth;
+      const currentScroll = container.scrollLeft;
       
       if (scrollDirectionRef.current === 'right') {
-        if (container.scrollLeft >= maxScroll - 1) {
-          // Reached right end - instantly reverse
+        if (currentScroll >= maxScroll - 10) {
+          // Reached right end - pause and reverse
           scrollDirectionRef.current = 'left';
+          setTimeout(() => {
+            scrollDirectionRef.current = 'left';
+          }, PAUSE_AT_ENDS);
         } else {
-          container.scrollLeft += 0.5;
+          container.scrollLeft += SCROLL_SPEED;
         }
       } else {
-        if (container.scrollLeft <= 1) {
-          // Reached left end - instantly reverse
+        if (currentScroll <= 10) {
+          // Reached left end - pause and reverse
           scrollDirectionRef.current = 'right';
+          setTimeout(() => {
+            scrollDirectionRef.current = 'right';
+          }, PAUSE_AT_ENDS);
         } else {
-          container.scrollLeft -= 0.5;
+          container.scrollLeft -= SCROLL_SPEED;
         }
       }
-      
-      animationId = requestAnimationFrame(scroll);
     };
 
-    animationId = requestAnimationFrame(scroll);
+    scrollInterval = setInterval(autoScroll, 16); // ~60fps
 
     return () => {
-      cancelAnimationFrame(animationId);
+      clearInterval(scrollInterval);
     };
   }, [isPaused]);
 
@@ -342,8 +421,14 @@ const Work = () => {
   }, []);
 
   return (
-    <section id="work" className="py-32 px-6 bg-card/30" ref={sectionRef}>
-      <div className="max-w-7xl mx-auto">
+    <section id="work" className="relative py-32 px-6 overflow-hidden" ref={sectionRef}>
+      {/* Blended background effect matching About section */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent pointer-events-none" />
+      
+      {/* Optional: Add a subtle connection gradient at the top if needed */}
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background to-transparent pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Featured Projects Section */}
         <div className="mb-20 text-center" ref={titleRef}>
           <div className="inline-flex items-center gap-3 mb-4 px-6 py-2 rounded-full bg-primary/10 border border-primary/20">
@@ -542,70 +627,22 @@ const Work = () => {
           
           {/* Reels Scroll Container */}
           <div 
-            className="flex gap-6 overflow-x-auto pb-10 pt-2 px-4 no-scrollbar scroll-smooth" 
+            className="flex gap-6 overflow-x-auto pb-10 pt-2 px-4 no-scrollbar scroll-smooth gpu-accelerate" 
             ref={reelsContainerRef}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {[...reels].reverse().map((reel, index) => (
-            <div 
-              key={index}
-              className="group relative w-[260px] md:w-[320px] flex-shrink-0"
-            >
-              {/* Floating background effect */}
-              <div className="absolute -inset-2 bg-gradient-to-b from-primary/30 via-primary/20 to-primary/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
-              
-              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-2xl shadow-2xl">
-                {/* Video Container */}
-                <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
-                  {playingVideo === `reel-${index}` ? (
-                    reel.platform === "streamable" ? (
-                      <CustomStreamablePlayer 
-                        videoId={reel.embedId}
-                        thumbnail={reel.thumbnail}
-                        title={reel.title}
-                      />
-                    ) : (
-                      <CustomVideoPlayer 
-                        videoId={reel.embedId}
-                        thumbnail={reel.thumbnail}
-                        title={reel.title}
-                      />
-                    )
-                  ) : (
-                    <div 
-                      className="relative w-full h-full cursor-pointer"
-                      onClick={() => setPlayingVideo(`reel-${index}`)}
-                    >
-                      {/* Thumbnail */}
-                      <img 
-                        src={reel.thumbnail}
-                        alt={reel.title}
-                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                      />
-                      
-                      {/* Gradient Overlays */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-50 group-hover:opacity-30 transition-opacity duration-500" />
-                      
-                      {/* Play Button */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-20 h-20 rounded-full bg-primary/90 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-2xl">
-                          <Play className="w-9 h-9 text-white ml-1 fill-current" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Title */}
-                <div className="p-5 bg-card">
-                  <h3 className="text-base md:text-lg font-semibold text-foreground/90 leading-tight line-clamp-2 text-center">
-                    {reel.title}
-                  </h3>
-                </div>
-              </Card>
-            </div>
-          ))}
-        </div>
+            {useMemo(() => (
+              [...reels].reverse().map((reel, index) => (
+                <ReelCard
+                  key={index}
+                  reel={reel}
+                  index={index}
+                  playingVideo={playingVideo}
+                  onPlayClick={setPlayingVideo}
+                />
+              ))
+            ), [playingVideo])}
+          </div>
       </div>
       </div>
     </section>

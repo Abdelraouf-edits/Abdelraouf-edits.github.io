@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import gsap from "gsap";
 
 const Hero = () => {
@@ -21,13 +21,10 @@ const Hero = () => {
       if (titleRef.current) {
         const chars = titleRef.current.querySelectorAll('.char');
 
-        // Set initial state for characters with force3D for better Chrome performance
+        // Set initial state for characters with reduced complexity for better performance
         gsap.set(chars, { 
           opacity: 0,
-          y: 50,
-          rotationX: -90,
-          transformPerspective: 600,
-          transformOrigin: "50% 50%",
+          y: 30,
           force3D: true,
         });
 
@@ -37,12 +34,10 @@ const Hero = () => {
         tl.to(chars, {
           opacity: 1,
           y: 0,
-          rotationX: 0,
-          stagger: 0.05,
-          duration: 0.8,
-          ease: "back.out(1.7)",
+          stagger: 0.04,
+          duration: 0.6,
+          ease: "power2.out",
           force3D: true,
-          clearProps: "all",
         })
         .to(subtitleRef.current, {
           opacity: 1,
@@ -71,11 +66,10 @@ const Hero = () => {
 
   return (
     <section id="hero" className="min-h-screen flex items-center justify-center px-6 py-20 relative overflow-hidden" ref={heroRef}>
-      {/* Animated gradient background */}
+      {/* Animated gradient background - optimized */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-accent/5 to-transparent" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl animate-float" />
       </div>
       
       <div className="max-w-5xl mx-auto text-center relative z-10">

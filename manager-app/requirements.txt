@@ -1,0 +1,8 @@
+# Video Manager Desktop Application - Dependencies
+# Most dependencies are built into Python's standard library
+
+# For building the executable
+pyinstaller>=6.0.0
+
+# Optional: Enhanced git operations (not required, using subprocess instead)
+# gitpython>=3.1.0
