@@ -48,106 +48,120 @@ const reels = [
     title: "Imagination perfume",
     videoUrl: "https://streamable.com/9mka3k",
     embedId: "9mka3k",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/9mka3k.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Delivery to all countries worldwide",
     videoUrl: "https://streamable.com/ggd33r",
     embedId: "ggd33r",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/ggd33r.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Spain Trip - Toledo",
     videoUrl: "https://streamable.com/n7neq3",
     embedId: "n7neq3",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/n7neq3.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "MANTOBACO perfume",
     videoUrl: "https://streamable.com/v29jkm",
     embedId: "v29jkm",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/v29jkm.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "PURPOSE 50 Perfume",
     videoUrl: "https://streamable.com/p6226x",
     embedId: "p6226x",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/p6226x.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Maracuja Oud Perfume",
     videoUrl: "https://streamable.com/y2asx7",
     embedId: "y2asx7",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/y2asx7.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Matsukita perfume",
     videoUrl: "https://streamable.com/pvtzgn",
     embedId: "pvtzgn",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/pvtzgn.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Caption Bazaar Perfumes",
     videoUrl: "https://streamable.com/2aoz7t",
     embedId: "2aoz7t",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/2aoz7t.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Al Hosn Palace Amendment",
     videoUrl: "https://streamable.com/jxwtm6",
     embedId: "jxwtm6",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/jxwtm6.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Countries you must visit in winter",
     videoUrl: "https://streamable.com/vw9k45",
     embedId: "vw9k45",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/vw9k45.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Mosque of Cordoba",
     videoUrl: "https://streamable.com/zpbzqn",
     embedId: "zpbzqn",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/zpbzqn.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Spain Trip - Roman Bridge",
     videoUrl: "https://streamable.com/bzr9go",
     embedId: "bzr9go",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/bzr9go.jpg`,
+    platform: "streamable",
   },
+
   {
     title: "Football Highlight Reel",
     videoUrl: "https://streamable.com/l06h1d",
     embedId: "l06h1d",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/l06h1d.jpg`,
-  },
-  {
-    title: "Mohi Visuals Style Recreation",
-    videoUrl: "https://streamable.com/3ib9ax",
-    embedId: "3ib9ax",
     platform: "streamable",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/3ib9ax.jpg`,
   },
+
   {
     title: "Short Form Edit",
     videoUrl: "https://streamable.com/z4gi5a",
     embedId: "z4gi5a",
-    platform: "streamable",
     thumbnail: `https://cdn-cf-east.streamable.com/image/z4gi5a.jpg`,
+    platform: "streamable",
+  },
+
+  {
+    title: "Mohi Visuals Style Recreation",
+    videoUrl: "https://streamable.com/3ib9ax",
+    embedId: "3ib9ax",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/3ib9ax.jpg`,
+    platform: "streamable",
   },
 ];
 
