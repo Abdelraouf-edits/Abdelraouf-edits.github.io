@@ -4,7 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📹 Portfolio Video Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* Deep Space Theme */
+            --background: #030b1d;
+            --foreground: #e1e7ef;
+            --card: #0a1628;
+            --card-foreground: #e1e7ef;
+            --primary: #f8fafc;
+            --primary-foreground: #0f172a;
+            --secondary: #1e293b;
+            --secondary-foreground: #f8fafc;
+            --muted: #1e293b;
+            --muted-foreground: #94a3b8;
+            --border: #1e293b;
+            --ring: #cbd5e1;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #38bdf8;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,21 +35,36 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--background);
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
+            color: var(--foreground);
         }
 
         .container {
-            background: white;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             max-width: 900px;
             width: 100%;
             margin: 0 auto;
             padding: 40px;
             animation: slideIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.5;
         }
 
         @keyframes slideIn {
@@ -43,18 +81,25 @@
         .nav-links {
             margin-top: 20px;
             margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
         }
 
         .nav-links a {
-            color: #667eea;
+            color: var(--muted-foreground);
             text-decoration: none;
-            margin: 0 15px;
-            font-weight: 600;
-            transition: color 0.3s;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
         }
 
         .nav-links a:hover {
-            color: #764ba2;
+            color: var(--primary);
+            background: var(--secondary);
+            border-color: var(--border);
         }
 
         .header {
@@ -64,8 +109,12 @@
 
         .header h1 {
             font-size: 32px;
-            color: #333;
+            color: var(--primary);
             margin-bottom: 10px;
+            background: linear-gradient(to right, var(--foreground), var(--muted-foreground));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header .emoji {
@@ -74,7 +123,7 @@
         }
 
         .header p {
-            color: #666;
+            color: var(--muted-foreground);
             font-size: 14px;
         }
 
@@ -85,31 +134,42 @@
         label {
             display: block;
             font-weight: 600;
-            color: #333;
+            color: var(--foreground);
             margin-bottom: 8px;
             font-size: 14px;
         }
 
         .required {
-            color: #e74c3c;
+            color: var(--error);
         }
 
         input[type="text"],
         select {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s;
             font-family: inherit;
+            background: var(--secondary);
+            color: var(--foreground);
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--muted-foreground);
         }
 
         input[type="text"]:focus,
         select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--ring);
+            box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.1);
+        }
+
+        select option {
+            background: var(--card);
+            color: var(--foreground);
         }
 
         .radio-group {
@@ -131,22 +191,24 @@
         .radio-option label {
             display: block;
             padding: 15px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 500;
+            background: var(--secondary);
+            color: var(--foreground);
         }
 
         .radio-option input[type="radio"]:checked + label {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--info) 0%, #0ea5e9 100%);
             color: white;
-            border-color: #667eea;
+            border-color: var(--info);
         }
 
         .radio-option label:hover {
-            border-color: #667eea;
+            border-color: var(--ring);
         }
 
         .btn {
@@ -162,15 +224,15 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--info) 0%, #0ea5e9 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
             width: 100%;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
         }
 
         .btn-primary:disabled {
@@ -180,12 +242,12 @@
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
             color: white;
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
             color: white;
             padding: 8px 15px;
             font-size: 12px;
@@ -197,8 +259,8 @@
         }
 
         .video-entry {
-            background: #f8f9fa;
-            border: 2px solid #e0e0e0;
+            background: var(--secondary);
+            border: 1px solid var(--border);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
@@ -207,8 +269,8 @@
         }
 
         .video-entry.valid {
-            border-color: #28a745;
-            background: #f8fff8;
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.05);
         }
 
         @keyframes fadeIn {
@@ -228,17 +290,17 @@
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid var(--border);
         }
 
         .video-entry-number {
             font-weight: bold;
-            color: #667eea;
+            color: var(--info);
             font-size: 16px;
         }
 
         .remove-video-btn {
-            background: #dc3545;
+            background: var(--error);
             color: white;
             border: none;
             padding: 5px 12px;
@@ -249,7 +311,7 @@
         }
 
         .remove-video-btn:hover {
-            background: #c82333;
+            background: #dc2626;
             transform: scale(1.05);
         }
 
@@ -280,7 +342,7 @@
             width: 100%;
             max-width: 200px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         /* Add More Button */
@@ -291,10 +353,10 @@
             gap: 10px;
             width: 100%;
             padding: 20px;
-            border: 3px dashed #667eea;
+            border: 2px dashed var(--border);
             border-radius: 15px;
             background: transparent;
-            color: #667eea;
+            color: var(--muted-foreground);
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -303,9 +365,9 @@
         }
 
         .add-video-btn:hover {
-            background: rgba(102, 126, 234, 0.1);
-            border-color: #764ba2;
-            color: #764ba2;
+            background: rgba(56, 189, 248, 0.1);
+            border-color: var(--info);
+            color: var(--info);
         }
 
         .add-video-btn .plus-icon {
@@ -324,12 +386,13 @@
 
         /* Success/Error Messages */
         .success-message {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
             padding: 20px;
             border-radius: 10px;
             margin-top: 20px;
             display: none;
+            border: 1px solid rgba(34, 197, 94, 0.3);
         }
 
         .success-message.show {
@@ -338,12 +401,13 @@
         }
 
         .error-message {
-            background: #f8d7da;
-            color: #721c24;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
             padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
             display: none;
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
         .error-message.show {
@@ -353,7 +417,7 @@
 
         .helper-text {
             font-size: 12px;
-            color: #999;
+            color: var(--muted-foreground);
             margin-top: 5px;
         }
 
@@ -370,14 +434,15 @@
         .progress-bar {
             width: 100%;
             height: 20px;
-            background: #e0e0e0;
+            background: var(--secondary);
             border-radius: 10px;
             overflow: hidden;
+            border: 1px solid var(--border);
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--info) 0%, #0ea5e9 100%);
             transition: width 0.3s;
         }
 
@@ -385,13 +450,13 @@
             text-align: center;
             margin-top: 10px;
             font-weight: 600;
-            color: #667eea;
+            color: var(--info);
         }
 
         /* Video Count Badge */
         .video-count-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--info) 0%, #0ea5e9 100%);
             color: white;
             padding: 5px 15px;
             border-radius: 20px;
@@ -399,9 +464,42 @@
             margin-left: 10px;
         }
 
+        /* Custom Category Input */
+        .custom-category-wrapper {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .custom-category-wrapper.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .custom-category-wrapper input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--secondary);
+            color: var(--foreground);
+            transition: all 0.3s;
+        }
+
+        .custom-category-wrapper input:focus {
+            outline: none;
+            border-color: var(--ring);
+            box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.1);
+        }
+
+        .custom-category-wrapper input::placeholder {
+            color: var(--muted-foreground);
+        }
+
         /* Summary Section */
         .summary-section {
-            background: #f0f4ff;
+            background: var(--secondary);
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 15px;
             margin-top: 20px;
@@ -412,11 +510,16 @@
             display: block;
         }
 
+        .summary-section h4 {
+            color: var(--foreground);
+        }
+
         .summary-item {
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border);
+            color: var(--foreground);
         }
 
         .summary-item:last-child {
@@ -571,7 +674,7 @@
                         </div>
                         <div class="form-group category-field ${isLongform ? 'show' : ''}">
                             <label for="videoCategory${entryId}">Project Type <span class="required">*</span></label>
-                            <select id="videoCategory${entryId}" class="video-category-select" data-entry-id="${entryId}" onchange="validateEntry(${entryId})">
+                            <select id="videoCategory${entryId}" class="video-category-select" data-entry-id="${entryId}" onchange="handleCategoryChange(${entryId})">
                                 <option value="">Select category...</option>
                                 <option value="Spec Work">Spec Work</option>
                                 <option value="Motion Graphics">Motion Graphics</option>
@@ -580,7 +683,17 @@
                                 <option value="Documentary">Documentary</option>
                                 <option value="Commercial">Commercial</option>
                                 <option value="Music Video">Music Video</option>
+                                <option value="__custom__">✨ Other (Custom)...</option>
                             </select>
+                            <div class="custom-category-wrapper" id="customCategoryWrapper${entryId}">
+                                <input 
+                                    type="text" 
+                                    id="customCategory${entryId}" 
+                                    placeholder="Enter custom project type..."
+                                    data-entry-id="${entryId}"
+                                    oninput="validateEntry(${entryId})"
+                                >
+                            </div>
                         </div>
                         <div class="form-group">
                             <div class="thumbnail-preview" id="thumbnailPreview${entryId}">
@@ -640,12 +753,40 @@
             validateEntry(entryId);
         }
 
+        function handleCategoryChange(entryId) {
+            const select = document.getElementById(`videoCategory${entryId}`);
+            const customWrapper = document.getElementById(`customCategoryWrapper${entryId}`);
+            const customInput = document.getElementById(`customCategory${entryId}`);
+            
+            if (select.value === '__custom__') {
+                customWrapper.classList.add('show');
+                customInput.focus();
+            } else {
+                customWrapper.classList.remove('show');
+                customInput.value = '';
+            }
+            
+            validateEntry(entryId);
+        }
+
+        function getVideoCategory(entryId) {
+            const select = document.getElementById(`videoCategory${entryId}`);
+            if (!select) return null;
+            
+            if (select.value === '__custom__') {
+                const customInput = document.getElementById(`customCategory${entryId}`);
+                return customInput?.value.trim() || null;
+            }
+            
+            return select.value || null;
+        }
+
         function validateEntry(entryId) {
             const entry = document.getElementById(`videoEntry${entryId}`);
             const title = document.getElementById(`title${entryId}`).value.trim();
             const url = document.getElementById(`videoUrl${entryId}`).value.trim();
             const isLongform = document.querySelector('input[name="category"]:checked').value === 'longform';
-            const category = document.getElementById(`videoCategory${entryId}`)?.value;
+            const category = getVideoCategory(entryId);
             
             const urlMatch = url.match(/streamable\.com\/([a-zA-Z0-9]+)/);
             
@@ -678,7 +819,7 @@
                 
                 let isValid = title && urlMatch;
                 if (isLongform) {
-                    const category = document.getElementById(`videoCategory${entryId}`)?.value;
+                    const category = getVideoCategory(entryId);
                     isValid = isValid && category;
                 }
                 
@@ -687,14 +828,14 @@
                     summaryHTML += `
                         <div class="summary-item">
                             <span>${index + 1}. ${title}</span>
-                            <span style="color: #28a745;">✓ Ready</span>
+                            <span style="color: var(--success);">✓ Ready</span>
                         </div>
                     `;
                 } else if (title || url) {
                     summaryHTML += `
                         <div class="summary-item">
                             <span>${index + 1}. ${title || 'Untitled'}</span>
-                            <span style="color: #dc3545;">⚠ Incomplete</span>
+                            <span style="color: var(--error);">⚠ Incomplete</span>
                         </div>
                     `;
                 }
@@ -733,7 +874,7 @@
             videoEntries.forEach(entryId => {
                 const title = document.getElementById(`title${entryId}`)?.value.trim();
                 const url = document.getElementById(`videoUrl${entryId}`)?.value.trim();
-                const videoCategory = document.getElementById(`videoCategory${entryId}`)?.value;
+                const videoCategory = getVideoCategory(entryId);
                 
                 const urlMatch = url?.match(/streamable\.com\/([a-zA-Z0-9]+)/);
                 
@@ -804,7 +945,7 @@
             
             if (successCount > 0) {
                 let successHTML = `
-                    <h4>🎉 Success!</h4>
+                    <h4 style="color: var(--success);">🎉 Success!</h4>
                     <p><strong>${successCount} video${successCount > 1 ? 's' : ''} added successfully!</strong></p>
                     <p style="margin-top: 10px;">✅ Videos added to Work.tsx</p>
                     <p>✅ Changes committed to Git</p>
@@ -813,7 +954,7 @@
                 
                 if (failedVideos.length > 0) {
                     successHTML += `
-                        <p style="margin-top: 10px; color: #856404;">⚠️ ${failedVideos.length} video${failedVideos.length > 1 ? 's' : ''} failed:</p>
+                        <p style="margin-top: 10px; color: var(--warning);">⚠️ ${failedVideos.length} video${failedVideos.length > 1 ? 's' : ''} failed:</p>
                         <ul style="margin-left: 20px;">
                             ${failedVideos.map(v => `<li>${v.title}: ${v.error}</li>`).join('')}
                         </ul>
@@ -821,7 +962,7 @@
                 }
                 
                 successHTML += `
-                    <p style="margin-top: 15px; padding: 10px; background: #c3e6cb; border-radius: 5px;">
+                    <p style="margin-top: 15px; padding: 10px; background: rgba(34, 197, 94, 0.2); border-radius: 5px; border: 1px solid rgba(34, 197, 94, 0.3);">
                         🚀 Your portfolio will update in a few minutes after GitHub Pages rebuilds!
                     </p>
                 `;

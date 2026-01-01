@@ -1,7 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -44,17 +44,24 @@ const formatGitError = (error) => {
   return error.message || 'Unknown git error';
 };
 
-const runGitCommand = (command) => {
-  return execSync(command, {
-    cwd: __dirname,
-    stdio: ['ignore', 'pipe', 'pipe'],
-    encoding: 'utf8',
-  });
+const runGitCommand = (args) => {
+  try {
+    return execFileSync('git', args, {
+      cwd: __dirname,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      encoding: 'utf8',
+    });
+  } catch (error) {
+    // Attach stdout/stderr to error for formatGitError
+    if (error.stdout) error.stdout = error.stdout.toString();
+    if (error.stderr) error.stderr = error.stderr.toString();
+    throw error;
+  }
 };
 
 const isGitRepo = () => {
   try {
-    const result = runGitCommand('git rev-parse --is-inside-work-tree').trim();
+    const result = runGitCommand(['rev-parse', '--is-inside-work-tree']).trim();
     return result === 'true';
   } catch {
     return false;
@@ -63,25 +70,23 @@ const isGitRepo = () => {
 
 const ensureGitConfig = () => {
   try {
-    const name = runGitCommand('git config --get user.name').trim();
+    const name = runGitCommand(['config', '--get', 'user.name']).trim();
     if (!name) {
-      runGitCommand('git config user.name "Portfolio Video Manager"');
+      runGitCommand(['config', 'user.name', 'Portfolio Video Manager']);
     }
   } catch {
-    runGitCommand('git config user.name "Portfolio Video Manager"');
+    runGitCommand(['config', 'user.name', 'Portfolio Video Manager']);
   }
 
   try {
-    const email = runGitCommand('git config --get user.email').trim();
+    const email = runGitCommand(['config', '--get', 'user.email']).trim();
     if (!email) {
-      runGitCommand('git config user.email "video-manager@local"');
+      runGitCommand(['config', 'user.email', 'video-manager@local']);
     }
   } catch {
-    runGitCommand('git config user.email "video-manager@local"');
+    runGitCommand(['config', 'user.email', 'video-manager@local']);
   }
 };
-
-const quoteForShell = (value = '') => value.replace(/"/g, '\\"');
 
 const stageCommitPush = (message, files = [WORK_RELATIVE_PATH]) => {
   if (!isGitRepo()) {
@@ -92,25 +97,23 @@ const stageCommitPush = (message, files = [WORK_RELATIVE_PATH]) => {
     };
   }
 
-  const addCommand = `git add -- ${files.map((file) => `"${file}"`).join(' ')}`;
-
   try {
-    runGitCommand(addCommand);
-    const stagedFiles = runGitCommand('git diff --cached --name-only').trim();
+    runGitCommand(['add', '--', ...files]);
+    const stagedFiles = runGitCommand(['diff', '--cached', '--name-only']).trim();
 
     if (!stagedFiles) {
-      runGitCommand('git reset');
+      runGitCommand(['reset']);
       return { success: true, skipped: true, message: 'No changes detected; skipped git commit.' };
     }
 
     ensureGitConfig();
-    runGitCommand(`git commit -m "${quoteForShell(message)}"`);
+    runGitCommand(['commit', '-m', message]);
   } catch (error) {
     return { success: false, error: formatGitError(error), stage: 'commit' };
   }
 
   try {
-    runGitCommand('git push');
+    runGitCommand(['push']);
   } catch (error) {
     return { success: false, error: formatGitError(error), stage: 'push', committed: true };
   }
