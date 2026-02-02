@@ -647,14 +647,14 @@ const Work = () => {
              onMouseEnter={handleMouseEnter}
              onMouseLeave={handleMouseLeave}>
           
-          {/* Redesigned Navigation Arrows - Always visible with smart hiding */}
+          {/* Redesigned Navigation Arrows - Show on hover only */}
           {showLeftArrow && (
             <button
               onClick={() => {
                 scrollReels('left');
                 handleUserInteraction();
               }}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/95 backdrop-blur-md border-2 border-primary/30 hover:border-primary hover:bg-primary/10 flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/95 backdrop-blur-md border-2 border-primary/30 hover:border-primary hover:bg-primary/10 flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 opacity-0 group-hover/reels-container:opacity-100"
               aria-label="Scroll left"
             >
               <ChevronLeft className="w-6 h-6 md:w-7 md:h-7 text-primary" />
@@ -667,7 +667,7 @@ const Work = () => {
                 scrollReels('right');
                 handleUserInteraction();
               }}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/95 backdrop-blur-md border-2 border-primary/30 hover:border-primary hover:bg-primary/10 flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/95 backdrop-blur-md border-2 border-primary/30 hover:border-primary hover:bg-primary/10 flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 opacity-0 group-hover/reels-container:opacity-100"
               aria-label="Scroll right"
             >
               <ChevronRight className="w-6 h-6 md:w-7 md:h-7 text-primary" />
