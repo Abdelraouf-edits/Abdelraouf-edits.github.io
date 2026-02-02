@@ -69,14 +69,6 @@ const reels = [
   },
 
   {
-    title: "MANTOBACO perfume",
-    videoUrl: "https://streamable.com/v29jkm",
-    embedId: "v29jkm",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/v29jkm.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "PURPOSE 50 Perfume",
     videoUrl: "https://streamable.com/p6226x",
     embedId: "p6226x",
@@ -97,6 +89,14 @@ const reels = [
     videoUrl: "https://streamable.com/pvtzgn",
     embedId: "pvtzgn",
     thumbnail: `https://cdn-cf-east.streamable.com/image/pvtzgn.jpg`,
+    platform: "streamable",
+  },
+
+  {
+    title: "MANTOBACO perfume",
+    videoUrl: "https://streamable.com/v29jkm",
+    embedId: "v29jkm",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/v29jkm.jpg`,
     platform: "streamable",
   },
 
