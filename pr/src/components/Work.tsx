@@ -85,14 +85,6 @@ const reels = [
   },
 
   {
-    title: "Mosque of Cordoba",
-    videoUrl: "https://streamable.com/zpbzqn",
-    embedId: "zpbzqn",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/zpbzqn.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "Spain Trip - Roman Bridge",
     videoUrl: "https://streamable.com/bzr9go",
     embedId: "bzr9go",
