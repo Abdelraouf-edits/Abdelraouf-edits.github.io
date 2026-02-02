@@ -45,26 +45,10 @@ const projects = [
 
 const reels = [
   {
-    title: "Delivery to all countries worldwide",
-    videoUrl: "https://streamable.com/ggd33r",
-    embedId: "ggd33r",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/ggd33r.jpg`,
-    platform: "streamable",
-  },
-
-  {
-    title: "MANTOBACO perfume",
-    videoUrl: "https://streamable.com/v29jkm",
-    embedId: "v29jkm",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/v29jkm.jpg`,
-    platform: "streamable",
-  },
-
-  {
-    title: "Caption Bazaar Perfumes",
-    videoUrl: "https://streamable.com/2aoz7t",
-    embedId: "2aoz7t",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/2aoz7t.jpg`,
+    title: "Spain Trip - Roman Bridge",
+    videoUrl: "https://streamable.com/bzr9go",
+    embedId: "bzr9go",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/bzr9go.jpg`,
     platform: "streamable",
   },
 
@@ -77,10 +61,26 @@ const reels = [
   },
 
   {
-    title: "Spain Trip - Roman Bridge",
-    videoUrl: "https://streamable.com/bzr9go",
-    embedId: "bzr9go",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/bzr9go.jpg`,
+    title: "Delivery to all countries worldwide",
+    videoUrl: "https://streamable.com/ggd33r",
+    embedId: "ggd33r",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/ggd33r.jpg`,
+    platform: "streamable",
+  },
+
+  {
+    title: "Caption Bazaar Perfumes",
+    videoUrl: "https://streamable.com/2aoz7t",
+    embedId: "2aoz7t",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/2aoz7t.jpg`,
+    platform: "streamable",
+  },
+
+  {
+    title: "MANTOBACO perfume",
+    videoUrl: "https://streamable.com/v29jkm",
+    embedId: "v29jkm",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/v29jkm.jpg`,
     platform: "streamable",
   },
 
