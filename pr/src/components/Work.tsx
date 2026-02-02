@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ExternalLink, Play, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect, useRef, memo, useMemo } from "react";
+import { useState, useEffect, useRef, memo, useMemo, useCallback } from "react";
 import CustomVideoPlayer from "@/components/ui/CustomVideoPlayer";
 import CustomStreamablePlayer from "@/components/ui/CustomStreamablePlayer";
 import gsap from "gsap";
@@ -101,7 +101,7 @@ const reels = [
   },
 ];
 
-// Memoized Reel Card Component for performance optimization
+// Optimized Reel Card with proper memoization and performance hints
 const ReelCard = memo(({ 
   reel, 
   index, 
@@ -116,6 +116,7 @@ const ReelCard = memo(({
   <div 
     key={index}
     className="group relative w-[260px] md:w-[320px] flex-shrink-0"
+    style={{ willChange: 'transform' }}
   >
     {/* Floating background effect */}
     <div className="absolute -inset-2 bg-gradient-to-b from-primary/15 via-primary/10 to-primary/15 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-all duration-700" />
@@ -179,21 +180,27 @@ ReelCard.displayName = 'ReelCard';
 const Work = () => {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const [projectsPage, setProjectsPage] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(true); // Start paused until user interacts
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const reelsTitleRef = useRef<HTMLDivElement>(null);
   const reelsContainerRef = useRef<HTMLDivElement>(null);
   const scrollDirectionRef = useRef<'right' | 'left'>('right');
+  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const endPauseRef = useRef<number | null>(null);
+  const scrollThrottleRef = useRef<number>(0);
+  const isScrollingRef = useRef<boolean>(false);
 
   const PROJECTS_PER_PAGE = 4;
   const totalProjectsPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
 
-  const currentProjects = projects.slice(
+  const currentProjects = useMemo(() => projects.slice(
     projectsPage * PROJECTS_PER_PAGE,
     (projectsPage + 1) * PROJECTS_PER_PAGE
-  );
+  ), [projectsPage]);
 
   const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
@@ -215,62 +222,135 @@ const Work = () => {
     }
   };
 
-  // Auto-scroll functionality for Reels - optimized with CSS scroll-behavior
+  // Optimized smooth auto-scroll using requestAnimationFrame
   useEffect(() => {
     const container = reelsContainerRef.current;
     if (!container) return;
 
-    let scrollInterval: NodeJS.Timeout;
-    const SCROLL_SPEED = 2.5; // pixels per frame
-    const PAUSE_AT_ENDS = 2000; // milliseconds to pause at ends
-    
-    const autoScroll = () => {
-      if (isPaused) return;
+    let rafId: number;
+    let lastTime = performance.now();
+    const SPEED_PX_PER_SEC = 100; // Reduced for smoother motion
+    const PAUSE_AT_ENDS = 2000;
 
-      const maxScroll = container.scrollWidth - container.clientWidth;
-      const currentScroll = container.scrollLeft;
-      
-      if (scrollDirectionRef.current === 'right') {
-        if (currentScroll >= maxScroll - 10) {
-          // Reached right end - pause and reverse
-          scrollDirectionRef.current = 'left';
-          setTimeout(() => {
-            scrollDirectionRef.current = 'left';
-          }, PAUSE_AT_ENDS);
+    const step = (time: number) => {
+      // Only update if enough time has passed (throttle to ~60fps)
+      if (time - lastTime < 16) {
+        rafId = requestAnimationFrame(step);
+        return;
+      }
+
+      const dt = Math.min((time - lastTime) / 1000, 0.1); // Cap dt to prevent jumps
+      lastTime = time;
+
+      if (!isPaused && !isScrollingRef.current) {
+        if (endPauseRef.current && time < endPauseRef.current) {
+          // Still in pause at end
         } else {
-          container.scrollLeft += SCROLL_SPEED;
-        }
-      } else {
-        if (currentScroll <= 10) {
-          // Reached left end - pause and reverse
-          scrollDirectionRef.current = 'right';
-          setTimeout(() => {
-            scrollDirectionRef.current = 'right';
-          }, PAUSE_AT_ENDS);
-        } else {
-          container.scrollLeft -= SCROLL_SPEED;
+          endPauseRef.current = null;
+
+          const maxScroll = container.scrollWidth - container.clientWidth;
+          const delta = SPEED_PX_PER_SEC * dt;
+
+          if (scrollDirectionRef.current === 'right') {
+            const next = container.scrollLeft + delta;
+            if (next >= maxScroll - 1) {
+              container.scrollLeft = maxScroll;
+              endPauseRef.current = time + PAUSE_AT_ENDS;
+              scrollDirectionRef.current = 'left';
+            } else {
+              container.scrollLeft = next;
+            }
+          } else {
+            const next = container.scrollLeft - delta;
+            if (next <= 1) {
+              container.scrollLeft = 0;
+              endPauseRef.current = time + PAUSE_AT_ENDS;
+              scrollDirectionRef.current = 'right';
+            } else {
+              container.scrollLeft = next;
+            }
+          }
         }
       }
+
+      rafId = requestAnimationFrame(step);
     };
 
-    scrollInterval = setInterval(autoScroll, 16); // ~60fps
+    rafId = requestAnimationFrame(step);
 
     return () => {
-      clearInterval(scrollInterval);
+      cancelAnimationFrame(rafId);
     };
   }, [isPaused]);
 
-  const scrollReels = (direction: 'left' | 'right') => {
+  // Optimized interaction handlers with useCallback
+  const handleUserInteraction = useCallback(() => {
+    setHasUserInteracted(true);
+    setIsPaused(false);
+
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+    }
+
+    inactivityTimeoutRef.current = setTimeout(() => {
+      setIsPaused(true);
+    }, 5000);
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    handleUserInteraction();
+  }, [handleUserInteraction]);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsPaused(true);
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+    }
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    const now = Date.now();
+    // Throttle scroll handler to max 10 calls per second
+    if (now - scrollThrottleRef.current < 100) return;
+    
+    scrollThrottleRef.current = now;
+    isScrollingRef.current = true;
+    
+    handleUserInteraction();
+    
+    // Update arrow visibility based on scroll position
     if (reelsContainerRef.current) {
-      const scrollAmount = 320; // Width of one card + gap
+      const { scrollLeft, scrollWidth, clientWidth } = reelsContainerRef.current;
+      setShowLeftArrow(scrollLeft > 10);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+    
+    // Reset scrolling flag after a short delay
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 150);
+  }, [handleUserInteraction]);
+
+  const scrollReels = useCallback((direction: 'left' | 'right') => {
+    if (reelsContainerRef.current) {
+      const scrollAmount = 720; // Scroll ~2 reels at a time
       reelsContainerRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
+      
+      // Update arrow visibility after scroll
+      setTimeout(() => {
+        if (reelsContainerRef.current) {
+          const { scrollLeft, scrollWidth, clientWidth } = reelsContainerRef.current;
+          setShowLeftArrow(scrollLeft > 10);
+          setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+        }
+      }, 300);
     }
-  };
+  }, []);
 
-  // GSAP Scroll Animations
+  // Optimized GSAP Scroll Animations with force3D
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Animate section title
@@ -286,12 +366,14 @@ const Work = () => {
               start: "top 85%",
               end: "bottom 70%",
               toggleActions: "play none none none",
+              fastScrollEnd: true,
             },
             opacity: 1,
             y: 0,
             duration: 0.8,
             stagger: 0.15,
             ease: "power3.out",
+            force3D: true,
           }
         );
       }
@@ -310,6 +392,7 @@ const Work = () => {
               start: "top 75%",
               end: "bottom 50%",
               toggleActions: "play none none none",
+              fastScrollEnd: true,
             },
             opacity: 1,
             y: 0,
@@ -317,6 +400,7 @@ const Work = () => {
             duration: 0.7,
             stagger: 0.12,
             ease: "power3.out",
+            force3D: true,
           }
         );
       }
@@ -334,12 +418,14 @@ const Work = () => {
               start: "top 85%",
               end: "bottom 70%",
               toggleActions: "play none none none",
+              fastScrollEnd: true,
             },
             opacity: 1,
             y: 0,
             duration: 0.8,
             stagger: 0.15,
             ease: "power3.out",
+            force3D: true,
           }
         );
       }
@@ -357,18 +443,20 @@ const Work = () => {
               start: "top 85%",
               end: "bottom 70%",
               toggleActions: "play none none none",
+              fastScrollEnd: true,
             },
             opacity: 1,
             y: 0,
             duration: 0.8,
             ease: "power3.out",
+            force3D: true,
           }
         );
       }
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [projectsPage]);
 
   return (
     <section id="work" className="relative py-32 px-6 overflow-hidden" ref={sectionRef}>
@@ -556,35 +644,52 @@ const Work = () => {
         </div>
         
         <div className="relative group/reels-container"
-             onMouseEnter={() => setIsPaused(true)}
-             onMouseLeave={() => setIsPaused(false)}>
+             onMouseEnter={handleMouseEnter}
+             onMouseLeave={handleMouseLeave}>
           
-          {/* Navigation Arrows for Reels */}
-          <button
-            onClick={() => scrollReels('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 z-20 w-14 h-14 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-7 h-7 text-white" />
-          </button>
-          <button
-            onClick={() => scrollReels('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 z-20 w-14 h-14 rounded-full bg-primary/90 hover:bg-primary flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 opacity-0 group-hover/reels-container:opacity-100"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-7 h-7 text-white" />
-          </button>
+          {/* Redesigned Navigation Arrows - Always visible with smart hiding */}
+          {showLeftArrow && (
+            <button
+              onClick={() => {
+                scrollReels('left');
+                handleUserInteraction();
+              }}
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/95 backdrop-blur-md border-2 border-primary/30 hover:border-primary hover:bg-primary/10 flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="w-6 h-6 md:w-7 md:h-7 text-primary" />
+            </button>
+          )}
           
-          {/* Reels Scroll Container */}
+          {showRightArrow && (
+            <button
+              onClick={() => {
+                scrollReels('right');
+                handleUserInteraction();
+              }}
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/95 backdrop-blur-md border-2 border-primary/30 hover:border-primary hover:bg-primary/10 flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="w-6 h-6 md:w-7 md:h-7 text-primary" />
+            </button>
+          )}
+          
+          {/* Optimized Reels Scroll Container with performance hints */}
           <div 
-            className="flex gap-6 overflow-x-auto pb-10 pt-2 px-4 no-scrollbar scroll-smooth gpu-accelerate" 
+            className="flex gap-6 overflow-x-auto pb-10 pt-2 px-4 no-scrollbar scroll-smooth" 
             ref={reelsContainerRef}
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            onScroll={handleScroll}
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              willChange: 'scroll-position',
+              WebkitOverflowScrolling: 'touch',
+            }}
           >
             {useMemo(() => (
               [...reels].reverse().map((reel, index) => (
                 <ReelCard
-                  key={index}
+                  key={`reel-${reel.embedId}`}
                   reel={reel}
                   index={index}
                   playingVideo={playingVideo}

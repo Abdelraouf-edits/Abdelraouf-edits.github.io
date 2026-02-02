@@ -144,14 +144,27 @@ All colors MUST be HSL.
 
   .scroll-smooth {
     scroll-behavior: smooth;
-    will-change: scroll-position;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* GPU acceleration for transform-based animations */
   .gpu-accelerate {
-    transform: translateZ(0);
-    will-change: transform;
+    transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Optimize horizontal scroll containers */
+  .overflow-x-auto {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    contain: layout style paint;
+  }
+
+  /* Optimize flex containers */
+  .flex {
+    contain: layout style;
   }
 
   /* Reduce motion for accessibility */
