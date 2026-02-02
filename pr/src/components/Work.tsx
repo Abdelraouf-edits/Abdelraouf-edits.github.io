@@ -45,6 +45,14 @@ const projects = [
 
 const reels = [
   {
+    title: "Short Form Edit",
+    videoUrl: "https://streamable.com/z4gi5a",
+    embedId: "z4gi5a",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/z4gi5a.jpg`,
+    platform: "streamable",
+  },
+
+  {
     title: "Spain Trip - Roman Bridge",
     videoUrl: "https://streamable.com/bzr9go",
     embedId: "bzr9go",
@@ -89,14 +97,6 @@ const reels = [
     videoUrl: "https://streamable.com/l06h1d",
     embedId: "l06h1d",
     thumbnail: `https://cdn-cf-east.streamable.com/image/l06h1d.jpg`,
-    platform: "streamable",
-  },
-
-  {
-    title: "Short Form Edit",
-    videoUrl: "https://streamable.com/z4gi5a",
-    embedId: "z4gi5a",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/z4gi5a.jpg`,
     platform: "streamable",
   },
 ];
