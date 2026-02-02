@@ -69,14 +69,6 @@ const reels = [
   },
 
   {
-    title: "Matsukita perfume",
-    videoUrl: "https://streamable.com/pvtzgn",
-    embedId: "pvtzgn",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/pvtzgn.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "MANTOBACO perfume",
     videoUrl: "https://streamable.com/v29jkm",
     embedId: "v29jkm",
