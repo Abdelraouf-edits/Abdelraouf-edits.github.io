@@ -69,14 +69,6 @@ const reels = [
   },
 
   {
-    title: "Maracuja Oud Perfume",
-    videoUrl: "https://streamable.com/y2asx7",
-    embedId: "y2asx7",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/y2asx7.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "Matsukita perfume",
     videoUrl: "https://streamable.com/pvtzgn",
     embedId: "pvtzgn",
