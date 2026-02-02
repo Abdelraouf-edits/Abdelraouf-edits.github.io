@@ -116,12 +116,12 @@ const ReelCard = memo(({
   <div 
     key={index}
     className="group relative w-[260px] md:w-[320px] flex-shrink-0"
-    style={{ willChange: 'transform' }}
+    style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
   >
-    {/* Floating background effect */}
-    <div className="absolute -inset-2 bg-gradient-to-b from-primary/15 via-primary/10 to-primary/15 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-all duration-700" />
+    {/* Optimized background glow - no blur */}
+    <div className="absolute -inset-1 bg-gradient-to-b from-primary/10 to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     
-    <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-2xl shadow-2xl">
+    <Card className="relative overflow-hidden bg-card/90 border border-border/50 hover:border-primary/40 transition-colors duration-300 cursor-pointer rounded-2xl shadow-xl">
       {/* Video Container */}
       <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
         {playingVideo === `reel-${index}` ? (
@@ -147,17 +147,18 @@ const ReelCard = memo(({
             <img 
               src={reel.thumbnail}
               alt={reel.title}
-              className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
               decoding="async"
+              style={{ transform: 'translateZ(0)' }}
             />
             
             {/* Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-50 group-hover:opacity-30 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-50 group-hover:opacity-30 transition-opacity duration-300" />
             
             {/* Play Button */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full bg-primary/90 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-2xl">
+              <div className="w-20 h-20 rounded-full bg-primary/95 border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-xl">
                 <Play className="w-9 h-9 text-white ml-1 fill-current" />
               </div>
             </div>
@@ -181,6 +182,7 @@ const Work = () => {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const [projectsPage, setProjectsPage] = useState(0);
   const [isPaused, setIsPaused] = useState(true); // Start paused until user interacts
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -222,101 +224,56 @@ const Work = () => {
     }
   };
 
-  // Optimized smooth auto-scroll using requestAnimationFrame
-  useEffect(() => {
-    const container = reelsContainerRef.current;
-    if (!container) return;
 
-    let rafId: number;
-    let lastTime = performance.now();
-    const SPEED_PX_PER_SEC = 100; // Reduced for smoother motion
-    const PAUSE_AT_ENDS = 2000;
-
-    const step = (time: number) => {
-      // Only update if enough time has passed (throttle to ~60fps)
-      if (time - lastTime < 16) {
-        rafId = requestAnimationFrame(step);
-        return;
-      }
-
-      const dt = Math.min((time - lastTime) / 1000, 0.1); // Cap dt to prevent jumps
-      lastTime = time;
-
-      if (!isPaused && !isScrollingRef.current) {
-        if (endPauseRef.current && time < endPauseRef.current) {
-          // Still in pause at end
-        } else {
-          endPauseRef.current = null;
-
-          const maxScroll = container.scrollWidth - container.clientWidth;
-          const delta = SPEED_PX_PER_SEC * dt;
-
-          if (scrollDirectionRef.current === 'right') {
-            const next = container.scrollLeft + delta;
-            if (next >= maxScroll - 1) {
-              container.scrollLeft = maxScroll;
-              endPauseRef.current = time + PAUSE_AT_ENDS;
-              scrollDirectionRef.current = 'left';
-            } else {
-              container.scrollLeft = next;
-            }
-          } else {
-            const next = container.scrollLeft - delta;
-            if (next <= 1) {
-              container.scrollLeft = 0;
-              endPauseRef.current = time + PAUSE_AT_ENDS;
-              scrollDirectionRef.current = 'right';
-            } else {
-              container.scrollLeft = next;
-            }
-          }
-        }
-      }
-
-      rafId = requestAnimationFrame(step);
-    };
-
-    rafId = requestAnimationFrame(step);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-    };
-  }, [isPaused]);
 
   // Optimized interaction handlers with useCallback
   const handleUserInteraction = useCallback(() => {
-    setHasUserInteracted(true);
-    setIsPaused(false);
-
+    // Mark that user has interacted (enables auto-scroll feature)
+    if (!hasUserInteracted) {
+      setHasUserInteracted(true);
+    }
+    
+    // Pause temporarily when user clicks arrows
+    setIsPaused(true);
+    
     if (inactivityTimeoutRef.current) {
       clearTimeout(inactivityTimeoutRef.current);
     }
 
+    // Resume auto-scroll after 2 seconds of button inactivity
     inactivityTimeoutRef.current = setTimeout(() => {
-      setIsPaused(true);
-    }, 5000);
-  }, []);
+      setIsPaused(false);
+    }, 2000);
+  }, [hasUserInteracted]);
 
   const handleMouseEnter = useCallback(() => {
-    handleUserInteraction();
-  }, [handleUserInteraction]);
+    // Activate auto-scroll feature on first hover
+    if (!hasUserInteracted) {
+      setHasUserInteracted(true);
+    }
+    // STOP auto-scroll when mouse enters section (so user can interact)
+    setIsPaused(true);
+  }, [hasUserInteracted]);
 
   const handleMouseLeave = useCallback(() => {
-    setIsPaused(true);
+    // RESUME auto-scroll when mouse leaves section
+    if (hasUserInteracted) {
+      setIsPaused(false);
+    }
     if (inactivityTimeoutRef.current) {
       clearTimeout(inactivityTimeoutRef.current);
     }
-  }, []);
+  }, [hasUserInteracted]);
 
   const handleScroll = useCallback(() => {
     const now = Date.now();
-    // Throttle scroll handler to max 10 calls per second
-    if (now - scrollThrottleRef.current < 100) return;
+    // Throttle scroll handler to prevent excessive calls
+    if (now - scrollThrottleRef.current < 150) return;
     
     scrollThrottleRef.current = now;
-    isScrollingRef.current = true;
     
-    handleUserInteraction();
+    // Mark as scrolling to pause auto-scroll temporarily
+    isScrollingRef.current = true;
     
     // Update arrow visibility based on scroll position
     if (reelsContainerRef.current) {
@@ -325,28 +282,30 @@ const Work = () => {
       setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
     }
     
-    // Reset scrolling flag after a short delay
+    // Reset scrolling flag after user stops
     setTimeout(() => {
       isScrollingRef.current = false;
-    }, 150);
-  }, [handleUserInteraction]);
+    }, 200);
+  }, []);
 
   const scrollReels = useCallback((direction: 'left' | 'right') => {
     if (reelsContainerRef.current) {
-      const scrollAmount = 720; // Scroll ~2 reels at a time
-      reelsContainerRef.current.scrollBy({
+      const scrollAmount = 680; // Optimized scroll distance
+      const container = reelsContainerRef.current;
+      
+      container.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
       
-      // Update arrow visibility after scroll
+      // Update arrow visibility after scroll completes
       setTimeout(() => {
         if (reelsContainerRef.current) {
           const { scrollLeft, scrollWidth, clientWidth } = reelsContainerRef.current;
           setShowLeftArrow(scrollLeft > 10);
           setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
         }
-      }, 300);
+      }, 350);
     }
   }, []);
 
@@ -511,11 +470,12 @@ const Work = () => {
             <div 
               key={index}
               className="group relative"
+              style={{ transform: 'translateZ(0)' }}
             >
-              {/* Floating background effect */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-primary/20 to-primary/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700" />
+              {/* Optimized background glow */}
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
-              <Card className="relative overflow-hidden bg-card/80 backdrop-blur-sm border-2 border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer rounded-2xl shadow-2xl">
+              <Card className="relative overflow-hidden bg-card/90 border-2 border-border/50 hover:border-primary/40 transition-colors duration-300 cursor-pointer rounded-2xl shadow-xl">
                 {/* Video Container */}
                 <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
                   {playingVideo === `project-${index}` ? (
@@ -541,22 +501,23 @@ const Work = () => {
                       <img 
                         src={project.thumbnail}
                         alt={project.title}
-                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
+                        className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                        style={{ transform: 'translateZ(0)' }}
                       />
                       
                       {/* Gradient Overlays */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
                       
                       {/* Enhanced Play Button */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="relative">
-                          {/* Animated rings */}
-                          <div className="absolute inset-0 rounded-full bg-primary/30 blur-2xl scale-150 group-hover:scale-200 transition-all duration-700 animate-pulse" />
-                          <div className="absolute inset-0 rounded-full border-2 border-primary/50 scale-125 group-hover:scale-150 transition-all duration-700" />
+                          {/* Single ring */}
+                          <div className="absolute inset-0 rounded-full border-2 border-primary/40 scale-110 group-hover:scale-125 transition-transform duration-300" />
                           
                           {/* Play button */}
-                          <div className="relative w-24 h-24 rounded-full bg-primary/95 backdrop-blur-md border-3 border-white/20 flex items-center justify-center group-hover:scale-125 transition-all duration-500 shadow-2xl">
+                          <div className="relative w-24 h-24 rounded-full bg-primary/95 border-2 border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-xl">
                             <Play className="w-10 h-10 text-white ml-1.5 fill-current drop-shadow-lg" />
                           </div>
                         </div>
@@ -647,14 +608,17 @@ const Work = () => {
              onMouseEnter={handleMouseEnter}
              onMouseLeave={handleMouseLeave}>
           
-          {/* Redesigned Navigation Arrows - Show on hover only */}
+          {/* Redesigned Navigation Arrows - Always visible, fade on hover */}
           {showLeftArrow && (
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 scrollReels('left');
                 handleUserInteraction();
               }}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/95 backdrop-blur-md border-2 border-primary/30 hover:border-primary hover:bg-primary/10 flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 opacity-0 group-hover/reels-container:opacity-100"
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/90 border-2 border-primary/40 hover:border-primary hover:bg-primary/20 hover:scale-105 flex items-center justify-center shadow-xl transition-all duration-200 opacity-70 hover:opacity-100"
+              style={{ pointerEvents: 'all', touchAction: 'manipulation' }}
               aria-label="Scroll left"
             >
               <ChevronLeft className="w-6 h-6 md:w-7 md:h-7 text-primary" />
@@ -663,11 +627,14 @@ const Work = () => {
           
           {showRightArrow && (
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 scrollReels('right');
                 handleUserInteraction();
               }}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/95 backdrop-blur-md border-2 border-primary/30 hover:border-primary hover:bg-primary/10 flex items-center justify-center shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 opacity-0 group-hover/reels-container:opacity-100"
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/90 border-2 border-primary/40 hover:border-primary hover:bg-primary/20 hover:scale-105 flex items-center justify-center shadow-xl transition-all duration-200 opacity-70 hover:opacity-100"
+              style={{ pointerEvents: 'all', touchAction: 'manipulation' }}
               aria-label="Scroll right"
             >
               <ChevronRight className="w-6 h-6 md:w-7 md:h-7 text-primary" />
