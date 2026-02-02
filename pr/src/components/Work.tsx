@@ -149,14 +149,6 @@ const reels = [
   },
 
   {
-    title: "Mohi Visuals Style Recreation",
-    videoUrl: "https://streamable.com/3ib9ax",
-    embedId: "3ib9ax",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/3ib9ax.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "Short Form Edit",
     videoUrl: "https://streamable.com/z4gi5a",
     embedId: "z4gi5a",
