@@ -107,6 +107,14 @@ const reels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/s4k8wb.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "I traveled the world for a rock",
+    videoUrl: "https://streamable.com/e2epe0",
+    embedId: "e2epe0",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/e2epe0.jpg`,
+    platform: "streamable",
+  },
 ];
 
 // Optimized Reel Card with proper memoization and performance hints
