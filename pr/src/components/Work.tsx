@@ -53,14 +53,6 @@ const reels = [
   },
 
   {
-    title: "kazakhstan vlog",
-    videoUrl: "https://streamable.com/8gtwh9",
-    embedId: "8gtwh9",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/8gtwh9.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "Countries you must visit in winter",
     videoUrl: "https://streamable.com/vw9k45",
     embedId: "vw9k45",
