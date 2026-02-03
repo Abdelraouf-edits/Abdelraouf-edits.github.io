@@ -99,6 +99,14 @@ const reels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/l06h1d.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "You want a marketing company for 200 dinars?",
+    videoUrl: "https://streamable.com/s4k8wb",
+    embedId: "s4k8wb",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/s4k8wb.jpg`,
+    platform: "streamable",
+  },
 ];
 
 // Optimized Reel Card with proper memoization and performance hints
