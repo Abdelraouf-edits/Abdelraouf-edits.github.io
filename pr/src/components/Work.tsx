@@ -115,6 +115,14 @@ const reels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/e2epe0.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "kazakhstan vlog",
+    videoUrl: "https://streamable.com/8gtwh9",
+    embedId: "8gtwh9",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/8gtwh9.jpg`,
+    platform: "streamable",
+  },
 ];
 
 // Optimized Reel Card with proper memoization and performance hints
