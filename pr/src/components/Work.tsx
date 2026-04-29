@@ -158,7 +158,7 @@ const ReelCard = memo(({
     <Card className="relative h-full flex flex-col overflow-hidden bg-card/90 border border-border/50 hover:border-primary/40 transition-colors duration-300 cursor-pointer rounded-2xl shadow-xl">
       {/* Video Container */}
       <div className="aspect-[9/16] shrink-0 bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
-        {playingVideo === `reel-${index}` ? (
+        {playingVideo === reel.embedId ? (
           reel.platform === "streamable" ? (
             <CustomStreamablePlayer 
               videoId={reel.embedId}
@@ -175,7 +175,7 @@ const ReelCard = memo(({
         ) : (
           <div 
             className="relative w-full h-full cursor-pointer"
-            onClick={() => onPlayClick(`reel-${index}`)}
+            onClick={() => onPlayClick(reel.embedId)}
           >
             {/* Thumbnail */}
             <img 
@@ -257,16 +257,22 @@ const Work = () => {
     if (!reelsPinRef.current || !reelsContainerRef.current) return;
 
     const container = reelsContainerRef.current;
-    const totalScrollWidth = container.scrollWidth - window.innerWidth;
+    
+    // Calculate dynamically so it updates on screen resize
+    const getScrollAmount = () => {
+      // 48 = 24px left + 24px right padding (px-6) from the section container
+      // Add an extra 24px so the last card isn't completely flush against the right padding
+      return Math.max(0, container.scrollWidth - window.innerWidth + 72);
+    };
 
     const ctx = gsap.context(() => {
       gsap.to(container, {
-        x: () => -totalScrollWidth,
+        x: () => -getScrollAmount(),
         ease: "none",
         scrollTrigger: {
           trigger: reelsPinRef.current,
           start: "top top",
-          end: () => `+=${totalScrollWidth}`,
+          end: () => `+=${getScrollAmount()}`,
           scrub: 1,
           pin: true,
           anticipatePin: 1,
@@ -286,6 +292,8 @@ const Work = () => {
     if (!entertainmentPinRef.current || !entertainmentContainerRef.current) return;
 
     const container = entertainmentContainerRef.current;
+    
+    const getScrollAmount = () => Math.max(0, container.scrollWidth - window.innerWidth + 72);
 
     const ctx = gsap.context(() => {
       // Entrance animation for title
@@ -305,16 +313,13 @@ const Work = () => {
         );
       }
 
-      // Horizontal scroll pin
-      const totalScrollWidth = container.scrollWidth - window.innerWidth;
-
       gsap.to(container, {
-        x: () => -totalScrollWidth,
+        x: () => -getScrollAmount(),
         ease: "none",
         scrollTrigger: {
           trigger: entertainmentPinRef.current,
           start: "top top",
-          end: () => `+=${totalScrollWidth}`,
+          end: () => `+=${getScrollAmount()}`,
           scrub: 1,
           pin: true,
           anticipatePin: 1,
@@ -681,41 +686,47 @@ const Work = () => {
               className="flex gap-6 will-change-transform"
               style={{ width: 'max-content' }}
             >
-              {entertainmentReels.length > 0
-                ? [...entertainmentReels].reverse().map((reel, index) => (
-                    <ReelCard
-                      key={`entertainment-${reel.embedId}`}
-                      reel={reel}
-                      index={index}
-                      playingVideo={playingVideo}
-                      onPlayClick={setPlayingVideo}
-                    />
-                  ))
-                : Array.from({ length: 6 }).map((_, index) => (
-                    <div
-                      key={`placeholder-${index}`}
-                      className="group relative w-[260px] md:w-[320px] flex-shrink-0 h-full"
-                    >
-                      <div className="relative h-full flex flex-col overflow-hidden bg-card/60 border border-border/30 border-dashed rounded-2xl shadow-xl">
-                        {/* Placeholder video area */}
-                        <div className="aspect-[9/16] shrink-0 bg-gradient-to-br from-muted/40 to-muted/20 relative flex flex-col items-center justify-center rounded-t-xl">
-                          <div className="w-16 h-16 rounded-full border-2 border-dashed border-primary/30 flex items-center justify-center mb-4">
-                            <Play className="w-7 h-7 text-primary/30 ml-1 fill-current" />
-                          </div>
-                          <span className="text-primary/40 text-xs font-semibold uppercase tracking-widest">
-                            Coming Soon
-                          </span>
-                          <span className="text-muted-foreground/30 text-xs mt-2">
-                            0{index + 1}
-                          </span>
+              {/* Render uploaded reels first, then pad with placeholders up to 6 */
+              (() => {
+                const reelsElements = [...entertainmentReels].reverse().map((reel, index) => (
+                  <ReelCard
+                    key={`entertainment-${reel.embedId}`}
+                    reel={reel}
+                    index={index}
+                    playingVideo={playingVideo}
+                    onPlayClick={setPlayingVideo}
+                  />
+                ));
+                
+                const placeholdersCount = Math.max(0, 6 - entertainmentReels.length);
+                const placeholderElements = Array.from({ length: placeholdersCount }).map((_, index) => (
+                  <div
+                    key={`placeholder-${index + entertainmentReels.length}`}
+                    className="group relative w-[260px] md:w-[320px] flex-shrink-0 h-full"
+                  >
+                    <div className="relative h-full flex flex-col overflow-hidden bg-card/60 border border-border/30 border-dashed rounded-2xl shadow-xl">
+                      {/* Placeholder video area */}
+                      <div className="aspect-[9/16] shrink-0 bg-gradient-to-br from-muted/40 to-muted/20 relative flex flex-col items-center justify-center rounded-t-xl">
+                        <div className="w-16 h-16 rounded-full border-2 border-dashed border-primary/30 flex items-center justify-center mb-4">
+                          <Play className="w-7 h-7 text-primary/30 ml-1 fill-current" />
                         </div>
-                        {/* Placeholder title area */}
-                        <div className="p-5 bg-card/40 flex-1 min-h-[72px] flex items-center justify-center">
-                          <div className="h-4 bg-muted/30 rounded-full w-3/4 mx-auto" />
-                        </div>
+                        <span className="text-primary/40 text-xs font-semibold uppercase tracking-widest">
+                          Coming Soon
+                        </span>
+                        <span className="text-muted-foreground/30 text-xs mt-2">
+                          0{index + 1 + entertainmentReels.length}
+                        </span>
+                      </div>
+                      {/* Placeholder title area */}
+                      <div className="p-5 bg-card/40 flex-1 min-h-[72px] flex items-center justify-center">
+                        <div className="h-4 bg-muted/30 rounded-full w-3/4 mx-auto" />
                       </div>
                     </div>
-                  ))
+                  </div>
+                ));
+                
+                return [...reelsElements, ...placeholderElements];
+              })()
               }
             </div>
           </div>
