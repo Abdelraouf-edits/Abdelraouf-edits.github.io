@@ -125,7 +125,15 @@ const reels = [
   },
 ];
 
-const entertainmentReels = [];
+const entertainmentReels = [
+  {
+    title: "guess 1",
+    videoUrl: "https://streamable.com/rk5swm",
+    embedId: "rk5swm",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/rk5swm.jpg`,
+    platform: "streamable",
+  },
+];
 
 // Optimized Reel Card with proper memoization and performance hints
 const ReelCard = memo(({ 
