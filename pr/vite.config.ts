@@ -28,11 +28,7 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-          animations: ["gsap", "lenis", "@studio-freight/lenis"],
-          ui: ["lucide-react", "@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu"],
-        },
+        // Removed manualChunks to avoid Circular chunk issues which breaks module loading
       },
     },
   },
