@@ -200,10 +200,12 @@ const getWorkData = () => {
   const workContent = readWorkFile();
   const { items: projects } = parseWorkArray(workContent, 'projects');
   const { items: reels } = parseWorkArray(workContent, 'reels');
+  const { items: entertainmentReels } = parseWorkArray(workContent, 'entertainmentReels');
 
   return {
     projects: projects.map((item) => ({ ...item })),
     reels: reels.map((item) => ({ ...item })),
+    entertainmentReels: entertainmentReels.map((item) => ({ ...item })),
   };
 };
 
@@ -230,7 +232,15 @@ app.post('/add-video', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Project type required for long-form content.' });
     }
 
-    const arrayName = category === 'longform' ? 'projects' : 'reels';
+    const arrayName =
+      category === 'longform' ? 'projects' :
+      category === 'shortform' ? 'reels' :
+      category === 'entertainment' ? 'entertainmentReels' :
+      null;
+
+    if (!arrayName) {
+      return res.status(400).json({ success: false, error: 'Invalid category.' });
+    }
 
     const { updatedItems } = updateWorkArray(arrayName, (items) => {
       if (items.some((item) => item.embedId === embedId)) {
@@ -253,7 +263,10 @@ app.post('/add-video', async (req, res) => {
       return items;
     });
 
-    const commitLabel = arrayName === 'projects' ? 'project' : 'reel';
+    const commitLabel =
+      arrayName === 'projects' ? 'project' :
+      arrayName === 'reels' ? 'reel' :
+      'entertainment reel';
     const gitResult = stageCommitPush(`Add ${commitLabel}: ${title}`);
 
     if (!gitResult.success) {
@@ -297,7 +310,15 @@ app.post('/delete-video', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing category or embedId.' });
     }
 
-    const arrayName = category === 'longform' ? 'projects' : 'reels';
+    const arrayName =
+      category === 'longform' ? 'projects' :
+      category === 'shortform' ? 'reels' :
+      category === 'entertainment' ? 'entertainmentReels' :
+      null;
+
+    if (!arrayName) {
+      return res.status(400).json({ success: false, error: 'Invalid category.' });
+    }
 
     let removedVideoTitle = embedId;
 
@@ -313,7 +334,10 @@ app.post('/delete-video', async (req, res) => {
       return items;
     });
 
-    const commitLabel = arrayName === 'projects' ? 'project' : 'reel';
+    const commitLabel =
+      arrayName === 'projects' ? 'project' :
+      arrayName === 'reels' ? 'reel' :
+      'entertainment reel';
     const gitResult = stageCommitPush(`Remove ${commitLabel}: ${embedId}`);
 
     if (!gitResult.success) {
@@ -341,7 +365,11 @@ app.post('/update-order', (req, res) => {
       return res.status(400).json({ success: false, error: 'Category and order array are required.' });
     }
 
-    const arrayName = category === 'longform' ? 'projects' : category === 'shortform' ? 'reels' : null;
+    const arrayName =
+      category === 'longform' ? 'projects' :
+      category === 'shortform' ? 'reels' :
+      category === 'entertainment' ? 'entertainmentReels' :
+      null;
 
     if (!arrayName) {
       return res.status(400).json({ success: false, error: 'Invalid category provided.' });
@@ -369,7 +397,10 @@ app.post('/update-order', (req, res) => {
       return [...orderedVideos, ...leftovers];
     });
 
-    const sectionLabel = arrayName === 'projects' ? 'projects' : 'reels';
+    const sectionLabel =
+      arrayName === 'projects' ? 'projects' :
+      arrayName === 'reels' ? 'reels' :
+      'entertainment reels';
     const gitResult = stageCommitPush(`Reorder ${sectionLabel}`);
 
     if (!gitResult.success) {

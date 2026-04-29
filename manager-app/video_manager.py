@@ -333,6 +333,23 @@ class VideoManagerApp:
     def check_command(self, name):
         """Check if a command is available."""
         return shutil.which(name) is not None
+
+    def get_subprocess_kwargs(self, hide_window=False):
+        """Return Windows-only subprocess kwargs; no-op on other OSes."""
+        if os.name != 'nt':
+            return {}
+
+        kwargs = {
+            "creationflags": subprocess.CREATE_NO_WINDOW
+        }
+
+        if hide_window:
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+            kwargs["startupinfo"] = startupinfo
+
+        return kwargs
     
     def ensure_tools(self):
         """Verify required tools are installed."""
@@ -341,7 +358,7 @@ class VideoManagerApp:
         if not self.check_command('npm'):
             raise Exception("npm is not available. Please verify Node.js installation.")
         if not self.check_command('git'):
-            raise Exception("Git is not installed. Please install Git for Windows and restart.")
+            raise Exception("Git is not installed. Please install Git and restart.")
     
     def ensure_dependencies(self):
         """Ensure npm dependencies are installed."""
@@ -366,7 +383,7 @@ class VideoManagerApp:
                 capture_output=True,
                 text=True,
                 shell=False,
-                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+                **self.get_subprocess_kwargs(hide_window=True)
             )
             
             if result.returncode != 0:
@@ -391,18 +408,12 @@ class VideoManagerApp:
         self.root.update()
         
         try:
-            # Start server process
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            startupinfo.wShowWindow = subprocess.SW_HIDE
-            
             self.server_process = subprocess.Popen(
                 ['node', 'video-manager-server.js'],
                 cwd=str(self.pr_path),
-                startupinfo=startupinfo,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                creationflags=subprocess.CREATE_NO_WINDOW
+                **self.get_subprocess_kwargs(hide_window=True)
             )
             
             # Wait a moment for server to start
@@ -466,7 +477,7 @@ class VideoManagerApp:
                 capture_output=True,
                 text=True,
                 shell=False,
-                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+                **self.get_subprocess_kwargs(hide_window=True)
             )
             return result
         except FileNotFoundError:
@@ -565,7 +576,7 @@ class VideoManagerApp:
                     cwd=str(self.pr_path),
                     capture_output=True,
                     shell=False,
-                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+                    **self.get_subprocess_kwargs(hide_window=True)
                 )
             
             self.set_status("Updates applied successfully!", Colors.SUCCESS)
