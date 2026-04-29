@@ -125,7 +125,15 @@ const reels = [
   },
 ];
 
-const entertainmentReels = [];
+const entertainmentReels = [
+  {
+    title: "Test",
+    videoUrl: "https://streamable.com/bzr9go",
+    embedId: "bzr9go",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/bzr9go.jpg`,
+    platform: "streamable",
+  },
+];
 
 // Optimized Reel Card with proper memoization and performance hints
 const ReelCard = memo(({ 
