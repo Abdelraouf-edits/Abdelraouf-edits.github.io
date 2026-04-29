@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { ExternalLink, Play, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect, useRef, memo, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, memo, useMemo } from "react";
 import CustomVideoPlayer from "@/components/ui/CustomVideoPlayer";
 import CustomStreamablePlayer from "@/components/ui/CustomStreamablePlayer";
 import gsap from "gsap";
@@ -125,6 +125,8 @@ const reels = [
   },
 ];
 
+const entertainmentReels = [];
+
 // Optimized Reel Card with proper memoization and performance hints
 const ReelCard = memo(({ 
   reel, 
@@ -139,15 +141,15 @@ const ReelCard = memo(({
 }) => (
   <div 
     key={index}
-    className="group relative w-[260px] md:w-[320px] flex-shrink-0"
+    className="group relative w-[260px] md:w-[320px] flex-shrink-0 h-full"
     style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
   >
     {/* Optimized background glow - no blur */}
     <div className="absolute -inset-1 bg-gradient-to-b from-primary/10 to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     
-    <Card className="relative overflow-hidden bg-card/90 border border-border/50 hover:border-primary/40 transition-colors duration-300 cursor-pointer rounded-2xl shadow-xl">
+    <Card className="relative h-full flex flex-col overflow-hidden bg-card/90 border border-border/50 hover:border-primary/40 transition-colors duration-300 cursor-pointer rounded-2xl shadow-xl">
       {/* Video Container */}
-      <div className="aspect-[9/16] bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
+      <div className="aspect-[9/16] shrink-0 bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
         {playingVideo === `reel-${index}` ? (
           reel.platform === "streamable" ? (
             <CustomStreamablePlayer 
@@ -191,7 +193,7 @@ const ReelCard = memo(({
       </div>
       
       {/* Title */}
-      <div className="p-5 bg-card">
+      <div className="p-5 bg-card flex-1 min-h-[72px] flex items-center justify-center">
         <h3 className="text-base md:text-lg font-semibold text-foreground/90 leading-tight line-clamp-2 text-center">
           {reel.title}
         </h3>
@@ -205,20 +207,15 @@ ReelCard.displayName = 'ReelCard';
 const Work = () => {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const [projectsPage, setProjectsPage] = useState(0);
-  const [isPaused, setIsPaused] = useState(true); // Start paused until user interacts
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const reelsTitleRef = useRef<HTMLDivElement>(null);
   const reelsContainerRef = useRef<HTMLDivElement>(null);
-  const scrollDirectionRef = useRef<'right' | 'left'>('right');
-  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const endPauseRef = useRef<number | null>(null);
-  const scrollThrottleRef = useRef<number>(0);
-  const isScrollingRef = useRef<boolean>(false);
+  const reelsPinRef = useRef<HTMLDivElement>(null);
+  const entertainmentPinRef = useRef<HTMLDivElement>(null);
+  const entertainmentContainerRef = useRef<HTMLDivElement>(null);
+  const entertainmentTitleRef = useRef<HTMLDivElement>(null);
 
   const PROJECTS_PER_PAGE = 4;
   const totalProjectsPages = Math.ceil(projects.length / PROJECTS_PER_PAGE);
@@ -248,89 +245,81 @@ const Work = () => {
     }
   };
 
+  useEffect(() => {
+    if (!reelsPinRef.current || !reelsContainerRef.current) return;
 
+    const container = reelsContainerRef.current;
+    const totalScrollWidth = container.scrollWidth - window.innerWidth;
 
-  // Optimized interaction handlers with useCallback
-  const handleUserInteraction = useCallback(() => {
-    // Mark that user has interacted (enables auto-scroll feature)
-    if (!hasUserInteracted) {
-      setHasUserInteracted(true);
-    }
-    
-    // Pause temporarily when user clicks arrows
-    setIsPaused(true);
-    
-    if (inactivityTimeoutRef.current) {
-      clearTimeout(inactivityTimeoutRef.current);
-    }
+    const ctx = gsap.context(() => {
+      gsap.to(container, {
+        x: () => -totalScrollWidth,
+        ease: "none",
+        scrollTrigger: {
+          trigger: reelsPinRef.current,
+          start: "top top",
+          end: () => `+=${totalScrollWidth}`,
+          scrub: 1,
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const bar = document.getElementById('reels-progress-bar');
+            if (bar) bar.style.width = `${self.progress * 100}%`;
+          }
+        },
+      });
+    }, reelsPinRef);
 
-    // Resume auto-scroll after 2 seconds of button inactivity
-    inactivityTimeoutRef.current = setTimeout(() => {
-      setIsPaused(false);
-    }, 2000);
-  }, [hasUserInteracted]);
-
-  const handleMouseEnter = useCallback(() => {
-    // Activate auto-scroll feature on first hover
-    if (!hasUserInteracted) {
-      setHasUserInteracted(true);
-    }
-    // STOP auto-scroll when mouse enters section (so user can interact)
-    setIsPaused(true);
-  }, [hasUserInteracted]);
-
-  const handleMouseLeave = useCallback(() => {
-    // RESUME auto-scroll when mouse leaves section
-    if (hasUserInteracted) {
-      setIsPaused(false);
-    }
-    if (inactivityTimeoutRef.current) {
-      clearTimeout(inactivityTimeoutRef.current);
-    }
-  }, [hasUserInteracted]);
-
-  const handleScroll = useCallback(() => {
-    const now = Date.now();
-    // Throttle scroll handler to prevent excessive calls
-    if (now - scrollThrottleRef.current < 150) return;
-    
-    scrollThrottleRef.current = now;
-    
-    // Mark as scrolling to pause auto-scroll temporarily
-    isScrollingRef.current = true;
-    
-    // Update arrow visibility based on scroll position
-    if (reelsContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = reelsContainerRef.current;
-      setShowLeftArrow(scrollLeft > 10);
-      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
-    }
-    
-    // Reset scrolling flag after user stops
-    setTimeout(() => {
-      isScrollingRef.current = false;
-    }, 200);
+    return () => ctx.revert();
   }, []);
 
-  const scrollReels = useCallback((direction: 'left' | 'right') => {
-    if (reelsContainerRef.current) {
-      const scrollAmount = 680; // Optimized scroll distance
-      const container = reelsContainerRef.current;
-      
-      container.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
+  useEffect(() => {
+    if (!entertainmentPinRef.current || !entertainmentContainerRef.current) return;
+
+    const container = entertainmentContainerRef.current;
+
+    const ctx = gsap.context(() => {
+      // Entrance animation for title
+      if (entertainmentTitleRef.current) {
+        gsap.fromTo(entertainmentTitleRef.current.children,
+          { opacity: 0, y: 40 },
+          {
+            scrollTrigger: {
+              trigger: entertainmentTitleRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+            },
+            opacity: 1, y: 0,
+            duration: 0.8, stagger: 0.15,
+            ease: "power3.out", force3D: true,
+          }
+        );
+      }
+
+      // Horizontal scroll pin
+      const totalScrollWidth = container.scrollWidth - window.innerWidth;
+
+      gsap.to(container, {
+        x: () => -totalScrollWidth,
+        ease: "none",
+        scrollTrigger: {
+          trigger: entertainmentPinRef.current,
+          start: "top top",
+          end: () => `+=${totalScrollWidth}`,
+          scrub: 1,
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const bar = document.getElementById('entertainment-progress-bar');
+            if (bar) bar.style.width = `${self.progress * 100}%`;
+          },
+        },
       });
-      
-      // Update arrow visibility after scroll completes
-      setTimeout(() => {
-        if (reelsContainerRef.current) {
-          const { scrollLeft, scrollWidth, clientWidth } = reelsContainerRef.current;
-          setShowLeftArrow(scrollLeft > 10);
-          setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
-        }
-      }, 350);
-    }
+    }, entertainmentPinRef);
+
+    return () => ctx.revert();
   }, []);
 
   // Optimized GSAP Scroll Animations with force3D
@@ -497,9 +486,9 @@ const Work = () => {
               style={{ transform: 'translateZ(0)' }}
             >
               {/* Optimized background glow */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
               
-              <Card className="relative overflow-hidden bg-card/90 border-2 border-border/50 hover:border-primary/40 transition-colors duration-300 cursor-pointer rounded-2xl shadow-xl">
+              <Card className="relative overflow-hidden bg-card/90 border-2 border-border/50 hover:border-primary/40 transition-colors duration-300 transition-shadow cursor-pointer rounded-2xl shadow-xl hover:shadow-[0_0_32px_6px_hsl(var(--primary)/0.18)]">
                 {/* Video Container */}
                 <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 relative overflow-hidden rounded-t-xl">
                   {playingVideo === `project-${index}` ? (
@@ -628,68 +617,112 @@ const Work = () => {
           </p>
         </div>
         
-        <div className="relative group/reels-container"
-             onMouseEnter={handleMouseEnter}
-             onMouseLeave={handleMouseLeave}>
-          
-          {/* Redesigned Navigation Arrows - Always visible, fade on hover */}
-          {showLeftArrow && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                scrollReels('left');
-                handleUserInteraction();
-              }}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/90 border-2 border-primary/40 hover:border-primary hover:bg-primary/20 hover:scale-105 flex items-center justify-center shadow-xl transition-all duration-200 opacity-70 hover:opacity-100"
-              style={{ pointerEvents: 'all', touchAction: 'manipulation' }}
-              aria-label="Scroll left"
+        <div ref={reelsPinRef} className="relative">
+          <div className="flex items-center min-h-screen">
+            <div 
+              ref={reelsContainerRef}
+              className="flex gap-6 will-change-transform"
+              style={{ width: 'max-content' }}
             >
-              <ChevronLeft className="w-6 h-6 md:w-7 md:h-7 text-primary" />
-            </button>
-          )}
-          
-          {showRightArrow && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                scrollReels('right');
-                handleUserInteraction();
-              }}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-40 w-12 h-12 md:w-14 md:h-14 rounded-full bg-background/90 border-2 border-primary/40 hover:border-primary hover:bg-primary/20 hover:scale-105 flex items-center justify-center shadow-xl transition-all duration-200 opacity-70 hover:opacity-100"
-              style={{ pointerEvents: 'all', touchAction: 'manipulation' }}
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="w-6 h-6 md:w-7 md:h-7 text-primary" />
-            </button>
-          )}
-          
-          {/* Optimized Reels Scroll Container with performance hints */}
-          <div 
-            className="flex gap-6 overflow-x-auto pb-10 pt-2 px-4 no-scrollbar scroll-smooth" 
-            ref={reelsContainerRef}
-            onScroll={handleScroll}
-            style={{ 
-              scrollbarWidth: 'none', 
-              msOverflowStyle: 'none',
-              willChange: 'scroll-position',
-              WebkitOverflowScrolling: 'touch',
-            }}
-          >
-            {useMemo(() => (
-              [...reels].reverse().map((reel, index) => (
-                <ReelCard
-                  key={`reel-${reel.embedId}`}
-                  reel={reel}
-                  index={index}
-                  playingVideo={playingVideo}
-                  onPlayClick={setPlayingVideo}
-                />
-              ))
-            ), [playingVideo])}
+              {useMemo(() => (
+                [...reels].reverse().map((reel, index) => (
+                  <ReelCard
+                    key={`reel-${reel.embedId}`}
+                    reel={reel}
+                    index={index}
+                    playingVideo={playingVideo}
+                    onPlayClick={setPlayingVideo}
+                  />
+                ))
+              ), [playingVideo])}
+            </div>
           </div>
-      </div>
+        </div>
+
+        <div className="my-8 w-full max-w-xs mx-auto h-0.5 bg-border rounded-full overflow-hidden">
+          <div
+            id="reels-progress-bar"
+            className="h-full bg-primary rounded-full"
+            style={{ width: '0%', transition: 'none' }}
+          />
+        </div>
+
+        {/* Entertainment Reels Section */}
+
+        {/* Title — outside the pin wrapper so it scrolls in normally */}
+        <div className="mb-12 text-center mt-32" ref={entertainmentTitleRef}>
+          <div className="inline-flex items-center gap-3 mb-4 px-6 py-2 rounded-full bg-primary/10 border border-primary/20">
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-primary font-semibold tracking-wider uppercase text-xs">
+              Entertainment
+            </span>
+          </div>
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mt-4 bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+            Entertainment Reels
+          </h2>
+          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
+            Personal projects and creative experiments
+          </p>
+        </div>
+
+        {/* Pinned horizontal scroll wrapper */}
+        <div ref={entertainmentPinRef}>
+          <div className="flex items-center min-h-screen">
+            <div
+              ref={entertainmentContainerRef}
+              className="flex gap-6 will-change-transform"
+              style={{ width: 'max-content' }}
+            >
+              {entertainmentReels.length > 0
+                ? [...entertainmentReels].reverse().map((reel, index) => (
+                    <ReelCard
+                      key={`entertainment-${reel.embedId}`}
+                      reel={reel}
+                      index={index}
+                      playingVideo={playingVideo}
+                      onPlayClick={setPlayingVideo}
+                    />
+                  ))
+                : Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={`placeholder-${index}`}
+                      className="group relative w-[260px] md:w-[320px] flex-shrink-0 h-full"
+                    >
+                      <div className="relative h-full flex flex-col overflow-hidden bg-card/60 border border-border/30 border-dashed rounded-2xl shadow-xl">
+                        {/* Placeholder video area */}
+                        <div className="aspect-[9/16] shrink-0 bg-gradient-to-br from-muted/40 to-muted/20 relative flex flex-col items-center justify-center rounded-t-xl">
+                          <div className="w-16 h-16 rounded-full border-2 border-dashed border-primary/30 flex items-center justify-center mb-4">
+                            <Play className="w-7 h-7 text-primary/30 ml-1 fill-current" />
+                          </div>
+                          <span className="text-primary/40 text-xs font-semibold uppercase tracking-widest">
+                            Coming Soon
+                          </span>
+                          <span className="text-muted-foreground/30 text-xs mt-2">
+                            0{index + 1}
+                          </span>
+                        </div>
+                        {/* Placeholder title area */}
+                        <div className="p-5 bg-card/40 flex-1 min-h-[72px] flex items-center justify-center">
+                          <div className="h-4 bg-muted/30 rounded-full w-3/4 mx-auto" />
+                        </div>
+                      </div>
+                    </div>
+                  ))
+              }
+            </div>
+          </div>
+
+          {/* Progress bar */}
+          {entertainmentReels.length > 0 && (
+            <div className="mt-8 w-full max-w-xs mx-auto h-0.5 bg-border rounded-full overflow-hidden">
+              <div
+                id="entertainment-progress-bar"
+                className="h-full bg-primary rounded-full"
+                style={{ width: '0%', transition: 'none' }}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

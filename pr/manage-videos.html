@@ -409,6 +409,10 @@
                     <div class="stat-number" id="reelsCount">-</div>
                     <div class="stat-label">Short-form Reels</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="entertainmentCount">-</div>
+                    <div class="stat-label">Entertainment Reels</div>
+                </div>
             </div>
         </div>
 
@@ -436,6 +440,18 @@
             <div class="video-grid" id="reelsGrid">
                 <div class="loading">Loading reels...</div>
             </div>
+
+            <!-- Entertainment Reels -->
+            <div class="section-header" style="margin-top: 40px;">
+                <h2>🎬 Entertainment Reels</h2>
+                <div class="section-actions">
+                    <span class="dirty-indicator" id="entertainmentDirtyIndicator">⚠️ Order changed – save to push</span>
+                    <button class="save-order-btn" id="saveEntertainmentOrder" disabled>💾 Save Order</button>
+                </div>
+            </div>
+            <div class="video-grid" id="entertainmentGrid">
+                <div class="loading">Loading entertainment reels...</div>
+            </div>
         </div>
     </div>
 
@@ -456,6 +472,14 @@
                 indicator: document.getElementById('reelsDirtyIndicator'),
                 countLabel: document.getElementById('reelsCount'),
                 emptyCopy: 'No short-form reels yet'
+            },
+            entertainment: {
+                data: [],
+                grid: document.getElementById('entertainmentGrid'),
+                saveButton: document.getElementById('saveEntertainmentOrder'),
+                indicator: document.getElementById('entertainmentDirtyIndicator'),
+                countLabel: document.getElementById('entertainmentCount'),
+                emptyCopy: 'No entertainment reels yet'
             }
         };
 
@@ -479,6 +503,7 @@
         function updateStats() {
             managerState.longform.countLabel.textContent = managerState.longform.data.length;
             managerState.shortform.countLabel.textContent = managerState.shortform.data.length;
+            managerState.entertainment.countLabel.textContent = managerState.entertainment.data.length;
         }
 
         function createVideoCard(video, index, category) {
@@ -655,12 +680,17 @@
                 managerState.shortform.data = Array.isArray(data.reels)
                     ? data.reels.map((video) => ({ ...video }))
                     : [];
+                managerState.entertainment.data = Array.isArray(data.entertainmentReels)
+                    ? data.entertainmentReels.map((video) => ({ ...video }))
+                    : [];
 
                 renderVideos('longform');
                 renderVideos('shortform');
+                renderVideos('entertainment');
                 updateStats();
                 setDirty('longform', false);
                 setDirty('shortform', false);
+                setDirty('entertainment', false);
             } catch (error) {
                 if (showErrorToast) {
                     showMessage('❌ Failed to load videos: ' + error.message, false);
@@ -668,8 +698,10 @@
 
                 managerState.longform.countLabel.textContent = '-';
                 managerState.shortform.countLabel.textContent = '-';
+                managerState.entertainment.countLabel.textContent = '-';
                 managerState.longform.grid.innerHTML = '<div class="empty-state">Failed to load videos</div>';
                 managerState.shortform.grid.innerHTML = '<div class="empty-state">Failed to load videos</div>';
+                managerState.entertainment.grid.innerHTML = '<div class="empty-state">Failed to load videos</div>';
             }
         }
 
