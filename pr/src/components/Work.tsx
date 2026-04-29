@@ -133,6 +133,14 @@ const entertainmentReels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/rk5swm.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "Who is the liar?",
+    videoUrl: "https://streamable.com/g8omow",
+    embedId: "g8omow",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/g8omow.jpg`,
+    platform: "streamable",
+  },
 ];
 
 // Optimized Reel Card with proper memoization and performance hints
