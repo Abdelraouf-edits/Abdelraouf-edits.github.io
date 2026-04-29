@@ -123,8 +123,6 @@ const reels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/e2epe0.jpg`,
     platform: "streamable",
   },
-<<<<<<< HEAD
-=======
 ];
 
 const entertainmentReels = [
@@ -135,7 +133,6 @@ const entertainmentReels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/bzr9go.jpg`,
     platform: "streamable",
   },
->>>>>>> testing
 ];
 
 // Optimized Reel Card with proper memoization and performance hints
