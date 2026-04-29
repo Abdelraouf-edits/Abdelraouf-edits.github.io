@@ -179,15 +179,15 @@ const CustomStreamablePlayer = ({ videoId, thumbnail, title }: CustomStreamableP
                 className="relative group/avatar flex-shrink-0"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/80 hover:border-primary transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/50">
-                  <img 
-                    src="/assets/abdo-pfp-refined.webp" 
-                    alt="Abdelraouf"
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = '/assets/abdo-pfp-refined.webp';
-                    }}
-                  />
+                <div className="relative group">
+                  <div className="absolute -inset-2 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all duration-500" />
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-primary/50 transition-all duration-500 shadow-lg">
+                    <img
+                      src="https://pbs.twimg.com/profile_images/1849849732967919616/jqc-61ls_400x400.jpg"
+                      alt="Abdelraouf Alidrissi"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
                 </div>
               </a>
 
@@ -235,15 +235,15 @@ const CustomStreamablePlayer = ({ videoId, thumbnail, title }: CustomStreamableP
             className="relative group/avatar flex-shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/80 hover:border-primary transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-primary/50">
-              <img 
-                src="/assets/abdo-pfp-refined.webp" 
-                alt="Abdelraouf"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = '/assets/abdo-pfp-refined.webp';
-                }}
-              />
+            <div className="relative group">
+              <div className="absolute -inset-2 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all duration-500" />
+              <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-primary/50 transition-all duration-500 shadow-lg">
+                <img
+                  src="https://pbs.twimg.com/profile_images/1849849732967919616/jqc-61ls_400x400.jpg"
+                  alt="Abdelraouf Alidrissi"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
             </div>
           </a>
 

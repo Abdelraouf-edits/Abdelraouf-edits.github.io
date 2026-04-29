@@ -265,12 +265,10 @@ const Work = () => {
     if (!reelsPinRef.current || !reelsContainerRef.current) return;
 
     const container = reelsContainerRef.current;
-    
-    // Calculate dynamically so it updates on screen resize
+    const pinWrapper = reelsPinRef.current;
     const getScrollAmount = () => {
-      // 48 = 24px left + 24px right padding (px-6) from the section container
-      // Add an extra 24px so the last card isn't completely flush against the right padding
-      return Math.max(0, container.scrollWidth - window.innerWidth + 72);
+      const containerLeft = container.getBoundingClientRect().left;
+      return Math.max(0, container.scrollWidth - document.documentElement.clientWidth + containerLeft + containerLeft);
     };
 
     const ctx = gsap.context(() => {
@@ -278,12 +276,13 @@ const Work = () => {
         x: () => -getScrollAmount(),
         ease: "none",
         scrollTrigger: {
-          trigger: reelsPinRef.current,
+          trigger: pinWrapper,
           start: "top top",
           end: () => `+=${getScrollAmount()}`,
-          scrub: 1,
+          scrub: 0.5,
           pin: true,
-          anticipatePin: 1,
+          fastScrollEnd: true,
+          preventOverlaps: true,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             const bar = document.getElementById('reels-progress-bar');
@@ -293,15 +292,28 @@ const Work = () => {
       });
     }, reelsPinRef);
 
-    return () => ctx.revert();
+    if (document.readyState === 'complete') {
+      // Already loaded — defer one frame to let layout settle
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    } else {
+      const onLoad = () => ScrollTrigger.refresh();
+      window.addEventListener('load', onLoad, { once: true });
+    }
+
+    return () => {
+      ctx.revert();
+    };
   }, []);
 
   useEffect(() => {
     if (!entertainmentPinRef.current || !entertainmentContainerRef.current) return;
 
     const container = entertainmentContainerRef.current;
-    
-    const getScrollAmount = () => Math.max(0, container.scrollWidth - window.innerWidth + 72);
+    const pinWrapper = entertainmentPinRef.current;
+    const getScrollAmount = () => {
+      const containerLeft = container.getBoundingClientRect().left;
+      return Math.max(0, container.scrollWidth - document.documentElement.clientWidth + containerLeft + containerLeft);
+    };
 
     const ctx = gsap.context(() => {
       // Entrance animation for title
@@ -325,12 +337,13 @@ const Work = () => {
         x: () => -getScrollAmount(),
         ease: "none",
         scrollTrigger: {
-          trigger: entertainmentPinRef.current,
+          trigger: pinWrapper,
           start: "top top",
           end: () => `+=${getScrollAmount()}`,
-          scrub: 1,
+          scrub: 0.5,
           pin: true,
-          anticipatePin: 1,
+          fastScrollEnd: true,
+          preventOverlaps: true,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             const bar = document.getElementById('entertainment-progress-bar');
@@ -340,7 +353,17 @@ const Work = () => {
       });
     }, entertainmentPinRef);
 
-    return () => ctx.revert();
+    if (document.readyState === 'complete') {
+      // Already loaded — defer one frame to let layout settle
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    } else {
+      const onLoad = () => ScrollTrigger.refresh();
+      window.addEventListener('load', onLoad, { once: true });
+    }
+
+    return () => {
+      ctx.revert();
+    };
   }, []);
 
   // Optimized GSAP Scroll Animations with force3D
@@ -452,9 +475,11 @@ const Work = () => {
   }, [projectsPage]);
 
   return (
-    <section id="work" className="relative py-32 px-6 overflow-hidden" ref={sectionRef}>
+    <section id="work" className="relative py-32 px-6" ref={sectionRef}>
       {/* Blended background effect matching About section */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
+      </div>
       
       {/* Optional: Add a subtle connection gradient at the top if needed */}
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background to-transparent pointer-events-none" />
@@ -640,22 +665,24 @@ const Work = () => {
         
         <div ref={reelsPinRef} className="relative">
           <div className="flex items-center min-h-screen">
-            <div 
-              ref={reelsContainerRef}
-              className="flex gap-6 will-change-transform"
-              style={{ width: 'max-content' }}
-            >
-              {useMemo(() => (
-                [...reels].reverse().map((reel, index) => (
-                  <ReelCard
-                    key={`reel-${reel.embedId}`}
-                    reel={reel}
-                    index={index}
-                    playingVideo={playingVideo}
-                    onPlayClick={setPlayingVideo}
-                  />
-                ))
-              ), [playingVideo])}
+            <div style={{ overflow: 'hidden', width: '100vw' }}>
+              <div 
+                ref={reelsContainerRef}
+                className="flex gap-6 pr-8 will-change-transform"
+                style={{ width: 'max-content' }}
+              >
+                {useMemo(() => (
+                  [...reels].reverse().map((reel, index) => (
+                    <ReelCard
+                      key={`reel-${reel.embedId}`}
+                      reel={reel}
+                      index={index}
+                      playingVideo={playingVideo}
+                      onPlayClick={setPlayingVideo}
+                    />
+                  ))
+                ), [playingVideo])}
+              </div>
             </div>
           </div>
         </div>
@@ -689,14 +716,13 @@ const Work = () => {
         {/* Pinned horizontal scroll wrapper */}
         <div ref={entertainmentPinRef}>
           <div className="flex items-center min-h-screen">
-            <div
-              ref={entertainmentContainerRef}
-              className="flex gap-6 will-change-transform"
-              style={{ width: 'max-content' }}
-            >
-              {/* Render uploaded reels first, then pad with placeholders up to 6 */
-              (() => {
-                const reelsElements = [...entertainmentReels].reverse().map((reel, index) => (
+            <div style={{ overflow: 'hidden', width: '100vw' }}>
+              <div
+                ref={entertainmentContainerRef}
+                className="flex gap-6 pr-8 will-change-transform"
+                style={{ width: 'max-content' }}
+              >
+                {[...entertainmentReels].reverse().map((reel, index) => (
                   <ReelCard
                     key={`entertainment-${reel.embedId}`}
                     reel={reel}
@@ -704,38 +730,8 @@ const Work = () => {
                     playingVideo={playingVideo}
                     onPlayClick={setPlayingVideo}
                   />
-                ));
-                
-                const placeholdersCount = Math.max(0, 6 - entertainmentReels.length);
-                const placeholderElements = Array.from({ length: placeholdersCount }).map((_, index) => (
-                  <div
-                    key={`placeholder-${index + entertainmentReels.length}`}
-                    className="group relative w-[260px] md:w-[320px] flex-shrink-0 h-full"
-                  >
-                    <div className="relative h-full flex flex-col overflow-hidden bg-card/60 border border-border/30 border-dashed rounded-2xl shadow-xl">
-                      {/* Placeholder video area */}
-                      <div className="aspect-[9/16] shrink-0 bg-gradient-to-br from-muted/40 to-muted/20 relative flex flex-col items-center justify-center rounded-t-xl">
-                        <div className="w-16 h-16 rounded-full border-2 border-dashed border-primary/30 flex items-center justify-center mb-4">
-                          <Play className="w-7 h-7 text-primary/30 ml-1 fill-current" />
-                        </div>
-                        <span className="text-primary/40 text-xs font-semibold uppercase tracking-widest">
-                          Coming Soon
-                        </span>
-                        <span className="text-muted-foreground/30 text-xs mt-2">
-                          0{index + 1 + entertainmentReels.length}
-                        </span>
-                      </div>
-                      {/* Placeholder title area */}
-                      <div className="p-5 bg-card/40 flex-1 min-h-[72px] flex items-center justify-center">
-                        <div className="h-4 bg-muted/30 rounded-full w-3/4 mx-auto" />
-                      </div>
-                    </div>
-                  </div>
-                ));
-                
-                return [...reelsElements, ...placeholderElements];
-              })()
-              }
+                ))}
+              </div>
             </div>
           </div>
 

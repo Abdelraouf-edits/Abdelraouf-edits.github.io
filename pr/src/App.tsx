@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import Lenis from "lenis";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import gsap from "gsap";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -24,17 +26,19 @@ const App = () => {
       syncTouch: true,
     });
 
-    let rafId: number;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
+    // Correct Lenis + GSAP ScrollTrigger integration (no scrollerProxy)
+    lenis.on('scroll', ScrollTrigger.update);
 
-    rafId = requestAnimationFrame(raf);
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+
+    document.fonts.ready.then(() => ScrollTrigger.refresh());
 
     return () => {
       lenis.destroy();
-      cancelAnimationFrame(rafId);
+      gsap.ticker.remove((time) => lenis.raf(time * 1000));
     };
   }, []);
 

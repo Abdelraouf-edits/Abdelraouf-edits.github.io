@@ -87,9 +87,7 @@ All colors MUST be HSL.
     -moz-osx-font-smoothing: grayscale;
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
+
 }
 
 @layer utilities {
@@ -155,17 +153,8 @@ All colors MUST be HSL.
   }
   
   /* Optimize horizontal scroll containers */
-  .overflow-x-auto {
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x proximity;
-    contain: layout style paint;
-  }
 
   /* Optimize flex containers */
-  .flex {
-    contain: layout style;
-  }
 
   /* Reduce motion for accessibility */
   @media (prefers-reduced-motion: reduce) {

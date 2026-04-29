@@ -244,11 +244,16 @@ const CustomVideoPlayer = ({ videoId, thumbnail, title }: CustomVideoPlayerProps
               className="flex-shrink-0 hover:opacity-80 transition-opacity"
               onClick={(e) => e.stopPropagation()}
             >
-              <img 
-                src="/assets/abdo-pfp-refined.webp" 
-                alt="Channel" 
-                className="w-10 h-10 rounded-full border-2 border-primary object-cover shadow-lg"
-              />
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all duration-500" />
+                <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-primary/50 transition-all duration-500 shadow-lg">
+                  <img
+                    src="https://pbs.twimg.com/profile_images/1849849732967919616/jqc-61ls_400x400.jpg"
+                    alt="Abdelraouf Alidrissi"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              </div>
             </a>
             
             {/* Video Title */}
