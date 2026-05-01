@@ -167,8 +167,8 @@ const CustomStreamablePlayer = ({ videoId, thumbnail, title }: CustomStreamableP
           />
           {/* Personal Branding Overlay for iframe - Always Visible */}
           <div 
-            className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 via-black/50 to-transparent pointer-events-none transition-opacity duration-300"
-            style={{ zIndex: 50 }}
+            className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent pointer-events-none transition-opacity duration-300"
+            style={{ padding: '8px 8px 0 8px', zIndex: 50 }}
           >
             <div className="flex items-center gap-3 pointer-events-auto">
               {/* Profile Photo with Link */}
@@ -181,9 +181,9 @@ const CustomStreamablePlayer = ({ videoId, thumbnail, title }: CustomStreamableP
               >
                 <div className="relative group">
                   <div className="absolute -inset-2 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all duration-500" />
-                  <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-primary/50 transition-all duration-500 shadow-lg">
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-primary/50 transition-all duration-500 shadow-lg">
                     <img
-                      src="https://pbs.twimg.com/profile_images/1849849732967919616/jqc-61ls_400x400.jpg"
+                      src="/abdo-pfp-refined.webp"
                       alt="Abdelraouf Alidrissi"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -223,8 +223,8 @@ const CustomStreamablePlayer = ({ videoId, thumbnail, title }: CustomStreamableP
 
       {/* Personal Branding Overlay - Always Visible */}
       <div 
-        className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 via-black/50 to-transparent pointer-events-none transition-opacity duration-300"
-        style={{ zIndex: 50 }}
+        className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent pointer-events-none transition-opacity duration-300"
+        style={{ padding: '8px 8px 0 8px', zIndex: 50 }}
       >
         <div className="flex items-center gap-3 pointer-events-auto">
           {/* Profile Photo with Link */}
@@ -237,9 +237,9 @@ const CustomStreamablePlayer = ({ videoId, thumbnail, title }: CustomStreamableP
           >
             <div className="relative group">
               <div className="absolute -inset-2 bg-primary/20 rounded-full blur-xl group-hover:bg-primary/30 transition-all duration-500" />
-              <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-primary/50 transition-all duration-500 shadow-lg">
+              <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-primary/50 transition-all duration-500 shadow-lg">
                 <img
-                  src="https://pbs.twimg.com/profile_images/1849849732967919616/jqc-61ls_400x400.jpg"
+                  src="/abdo-pfp-refined.webp"
                   alt="Abdelraouf Alidrissi"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
