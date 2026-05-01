@@ -127,18 +127,10 @@ const reels = [
 
 const entertainmentReels = [
   {
-    title: "Who is the liar?",
-    videoUrl: "https://streamable.com/g8omow",
-    embedId: "g8omow",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/g8omow.jpg`,
-    platform: "streamable",
-  },
-
-  {
-    title: "guess 1",
-    videoUrl: "https://streamable.com/rk5swm",
-    embedId: "rk5swm",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/rk5swm.jpg`,
+    title: "Timer Challenge",
+    videoUrl: "https://streamable.com/hx7eh1",
+    embedId: "hx7eh1",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/hx7eh1.jpg`,
     platform: "streamable",
   },
 
@@ -159,10 +151,18 @@ const entertainmentReels = [
   },
 
   {
-    title: "Timer Challenge",
-    videoUrl: "https://streamable.com/hx7eh1",
-    embedId: "hx7eh1",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/hx7eh1.jpg`,
+    title: "Who is the liar?",
+    videoUrl: "https://streamable.com/g8omow",
+    embedId: "g8omow",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/g8omow.jpg`,
+    platform: "streamable",
+  },
+
+  {
+    title: "guess 1",
+    videoUrl: "https://streamable.com/rk5swm",
+    embedId: "rk5swm",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/rk5swm.jpg`,
     platform: "streamable",
   },
 ];
