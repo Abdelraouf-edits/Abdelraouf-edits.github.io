@@ -463,7 +463,8 @@
                 saveButton: document.getElementById('saveProjectsOrder'),
                 indicator: document.getElementById('projectsDirtyIndicator'),
                 countLabel: document.getElementById('projectsCount'),
-                emptyCopy: 'No long-form projects yet'
+                emptyCopy: 'No long-form projects yet',
+                section: 'projects'
             },
             shortform: {
                 data: [],
@@ -471,7 +472,8 @@
                 saveButton: document.getElementById('saveReelsOrder'),
                 indicator: document.getElementById('reelsDirtyIndicator'),
                 countLabel: document.getElementById('reelsCount'),
-                emptyCopy: 'No short-form reels yet'
+                emptyCopy: 'No short-form reels yet',
+                section: 'reels'
             },
             entertainment: {
                 data: [],
@@ -479,7 +481,8 @@
                 saveButton: document.getElementById('saveEntertainmentOrder'),
                 indicator: document.getElementById('entertainmentDirtyIndicator'),
                 countLabel: document.getElementById('entertainmentCount'),
-                emptyCopy: 'No entertainment reels yet'
+                emptyCopy: 'No entertainment reels yet',
+                section: 'entertainmentReels'
             }
         };
 
@@ -599,7 +602,11 @@
                 return;
             }
 
-            const embedOrder = config.data.map((video) => video.embedId);
+            // shortform and entertainment display order is reversed vs Work.tsx array order
+            const rawIds = config.data.map((video) => video.embedId);
+            const embedIds = (category === 'shortform' || category === 'entertainment')
+                ? [...rawIds].reverse()
+                : rawIds;
             const originalLabel = config.saveButton.textContent;
             config.saveButton.disabled = true;
             config.saveButton.textContent = '⏳ Saving...';
@@ -608,7 +615,7 @@
                 const response = await fetch('/update-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ category, order: embedOrder })
+                    body: JSON.stringify({ section: config.section, embedIds })
                 });
 
                 const result = await response.json();
@@ -677,11 +684,13 @@
                 managerState.longform.data = Array.isArray(data.projects)
                     ? data.projects.map((video) => ({ ...video }))
                     : [];
+                // reels and entertainmentReels are rendered with .reverse() in Work.tsx,
+                // so reverse here too so manager position 1 = first card visible on site
                 managerState.shortform.data = Array.isArray(data.reels)
-                    ? data.reels.map((video) => ({ ...video }))
+                    ? [...data.reels].reverse().map((video) => ({ ...video }))
                     : [];
                 managerState.entertainment.data = Array.isArray(data.entertainmentReels)
-                    ? data.entertainmentReels.map((video) => ({ ...video }))
+                    ? [...data.entertainmentReels].reverse().map((video) => ({ ...video }))
                     : [];
 
                 renderVideos('longform');

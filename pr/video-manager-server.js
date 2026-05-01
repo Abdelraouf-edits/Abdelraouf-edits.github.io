@@ -124,23 +124,47 @@ const stageCommitPush = (message, files = [WORK_RELATIVE_PATH]) => {
 const readWorkFile = () => fs.readFileSync(WORK_FILE_PATH, 'utf8');
 
 const parseWorkArray = (workContent, arrayName) => {
-  const arrayRegex = new RegExp(`const ${arrayName} = \\[([\\s\\S]*?)\\];`);
-  const match = arrayRegex.exec(workContent);
+  // Anchor on exact name (word boundary) to prevent "reels" matching inside "entertainmentReels"
+  const startRegex = new RegExp(`(?<![\\w])const ${arrayName}\\s*=\\s*\\[`);
+  const startMatch = startRegex.exec(workContent);
 
-  if (!match) {
+  if (!startMatch) {
     throw new Error(`Could not find ${arrayName} array in Work.tsx`);
   }
 
+  // Walk forward from the opening bracket, counting depth to find the matching closing bracket
+  const openBracketIndex = startMatch.index + startMatch[0].length - 1;
+  let depth = 0;
+  let closingIndex = -1;
+
+  for (let i = openBracketIndex; i < workContent.length; i++) {
+    if (workContent[i] === '[') depth++;
+    else if (workContent[i] === ']') {
+      depth--;
+      if (depth === 0) {
+        closingIndex = i;
+        break;
+      }
+    }
+  }
+
+  if (closingIndex === -1) {
+    throw new Error(`Could not find closing bracket for ${arrayName} array in Work.tsx`);
+  }
+
+  const fullMatch = workContent.slice(startMatch.index, closingIndex + 2); // include the trailing ";"
+  const innerContent = workContent.slice(openBracketIndex + 1, closingIndex);
+
   let items;
   try {
-    items = new Function(`return [${match[1]}];`)();
+    items = new Function(`return [${innerContent}];`)();
   } catch (error) {
     throw new Error(`Failed to parse ${arrayName} array: ${error.message}`);
   }
 
   return {
     items,
-    fullMatch: match[0],
+    fullMatch,
   };
 };
 
@@ -181,6 +205,22 @@ const buildArrayString = (arrayName, items) => {
 
   const serialized = items.map((item) => serializeItem(arrayName, item)).join('\n\n');
   return `const ${arrayName} = [\n${serialized}\n];`;
+};
+
+const resolveArrayName = ({ category, section }) => {
+  if (typeof section === 'string' && section.trim()) {
+    if (['projects', 'reels', 'entertainmentReels'].includes(section)) {
+      return section;
+    }
+    return null;
+  }
+
+  return (
+    category === 'longform' ? 'projects' :
+    category === 'shortform' ? 'reels' :
+    category === 'entertainment' ? 'entertainmentReels' :
+    null
+  );
 };
 
 const updateWorkArray = (arrayName, modifier) => {
@@ -232,11 +272,7 @@ app.post('/add-video', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Project type required for long-form content.' });
     }
 
-    const arrayName =
-      category === 'longform' ? 'projects' :
-      category === 'shortform' ? 'reels' :
-      category === 'entertainment' ? 'entertainmentReels' :
-      null;
+    const arrayName = resolveArrayName({ category });
 
     if (!arrayName) {
       return res.status(400).json({ success: false, error: 'Invalid category.' });
@@ -310,11 +346,7 @@ app.post('/delete-video', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing category or embedId.' });
     }
 
-    const arrayName =
-      category === 'longform' ? 'projects' :
-      category === 'shortform' ? 'reels' :
-      category === 'entertainment' ? 'entertainmentReels' :
-      null;
+    const arrayName = resolveArrayName({ category });
 
     if (!arrayName) {
       return res.status(400).json({ success: false, error: 'Invalid category.' });
@@ -359,24 +391,21 @@ app.post('/delete-video', async (req, res) => {
 // Update order endpoint
 app.post('/update-order', (req, res) => {
   try {
-    const { category, order } = req.body;
+    const { category, section, order, embedIds } = req.body;
+    const normalizedOrder = Array.isArray(embedIds) ? embedIds : order;
 
-    if (!category || !Array.isArray(order)) {
-      return res.status(400).json({ success: false, error: 'Category and order array are required.' });
+    if (!Array.isArray(normalizedOrder)) {
+      return res.status(400).json({ success: false, error: 'embedIds array is required.' });
     }
 
-    const arrayName =
-      category === 'longform' ? 'projects' :
-      category === 'shortform' ? 'reels' :
-      category === 'entertainment' ? 'entertainmentReels' :
-      null;
+    const arrayName = resolveArrayName({ category, section });
 
     if (!arrayName) {
-      return res.status(400).json({ success: false, error: 'Invalid category provided.' });
+      return res.status(400).json({ success: false, error: 'Invalid section provided.' });
     }
 
     const seen = new Set();
-    for (const id of order) {
+    for (const id of normalizedOrder) {
       if (seen.has(id)) {
         return res.status(400).json({ success: false, error: `Duplicate embedId in order payload: ${id}` });
       }
@@ -386,12 +415,12 @@ app.post('/update-order', (req, res) => {
     const { updatedItems } = updateWorkArray(arrayName, (items) => {
       const idToVideo = new Map(items.map((video) => [video.embedId, video]));
 
-      const missing = order.filter((id) => !idToVideo.has(id));
+      const missing = normalizedOrder.filter((id) => !idToVideo.has(id));
       if (missing.length) {
         throw new Error(`Embed IDs not found: ${missing.join(', ')}`);
       }
 
-      const orderedVideos = order.map((id) => idToVideo.get(id));
+      const orderedVideos = normalizedOrder.map((id) => idToVideo.get(id));
       const leftovers = items.filter((video) => !seen.has(video.embedId));
 
       return [...orderedVideos, ...leftovers];
