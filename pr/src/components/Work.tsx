@@ -123,6 +123,14 @@ const reels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/e2epe0.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "ad",
+    videoUrl: "https://streamable.com/gwor4q",
+    embedId: "gwor4q",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/gwor4q.jpg`,
+    platform: "streamable",
+  },
 ];
 
 const entertainmentReels = [
