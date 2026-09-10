@@ -77,6 +77,14 @@ const reels = [
   },
 
   {
+    title: "Delivery to all countries worldwide",
+    videoUrl: "https://streamable.com/lc21cw",
+    embedId: "lc21cw",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/lc21cw.jpg`,
+    platform: "streamable",
+  },
+
+  {
     title: "MANTOBACO perfume",
     videoUrl: "https://streamable.com/v29jkm",
     embedId: "v29jkm",
@@ -121,14 +129,6 @@ const reels = [
     videoUrl: "https://streamable.com/gwor4q",
     embedId: "gwor4q",
     thumbnail: `https://cdn-cf-east.streamable.com/image/gwor4q.jpg`,
-    platform: "streamable",
-  },
-
-  {
-    title: "Delivery to all countries worldwide",
-    videoUrl: "https://streamable.com/lc21cw",
-    embedId: "lc21cw",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/lc21cw.jpg`,
     platform: "streamable",
   },
 ];
