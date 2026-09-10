@@ -45,6 +45,14 @@ const projects = [
 
 const reels = [
   {
+    title: "The Great Mosque of Córdoba",
+    videoUrl: "https://streamable.com/xoiaxt",
+    embedId: "xoiaxt",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/xoiaxt.jpg`,
+    platform: "streamable",
+  },
+
+  {
     title: "kazakhstan vlog",
     videoUrl: "https://streamable.com/zn1yte",
     embedId: "zn1yte",
@@ -121,14 +129,6 @@ const reels = [
     videoUrl: "https://streamable.com/gwor4q",
     embedId: "gwor4q",
     thumbnail: `https://cdn-cf-east.streamable.com/image/gwor4q.jpg`,
-    platform: "streamable",
-  },
-
-  {
-    title: "The Great Mosque of Córdoba",
-    videoUrl: "https://streamable.com/xoiaxt",
-    embedId: "xoiaxt",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/xoiaxt.jpg`,
     platform: "streamable",
   },
 ];
