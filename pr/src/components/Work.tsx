@@ -135,14 +135,6 @@ const reels = [
 
 const entertainmentReels = [
   {
-    title: "guess the number",
-    videoUrl: "https://streamable.com/ylrd0x",
-    embedId: "ylrd0x",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/ylrd0x.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "guess 1",
     videoUrl: "https://streamable.com/rk5swm",
     embedId: "rk5swm",
