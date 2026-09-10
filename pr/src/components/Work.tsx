@@ -135,14 +135,6 @@ const reels = [
 
 const entertainmentReels = [
   {
-    title: "Timer Challenge",
-    videoUrl: "https://streamable.com/hx7eh1",
-    embedId: "hx7eh1",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/hx7eh1.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "guess the number",
     videoUrl: "https://streamable.com/ylrd0x",
     embedId: "ylrd0x",
