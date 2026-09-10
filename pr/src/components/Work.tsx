@@ -181,6 +181,14 @@ const entertainmentReels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/955hog.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "guess the number",
+    videoUrl: "https://streamable.com/ly0yuu",
+    embedId: "ly0yuu",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/ly0yuu.jpg`,
+    platform: "streamable",
+  },
 ];
 
 // Optimized Reel Card with proper memoization and performance hints
