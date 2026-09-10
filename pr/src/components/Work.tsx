@@ -123,6 +123,14 @@ const reels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/s4k8wb.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "kazakhstan vlog",
+    videoUrl: "https://streamable.com/nox1l8",
+    embedId: "nox1l8",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/nox1l8.jpg`,
+    platform: "streamable",
+  },
 ];
 
 const entertainmentReels = [
