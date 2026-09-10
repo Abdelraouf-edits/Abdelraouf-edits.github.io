@@ -135,22 +135,6 @@ const reels = [
 
 const entertainmentReels = [
   {
-    title: "guess 1",
-    videoUrl: "https://streamable.com/rk5swm",
-    embedId: "rk5swm",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/rk5swm.jpg`,
-    platform: "streamable",
-  },
-
-  {
-    title: "Who is the liar?",
-    videoUrl: "https://streamable.com/m8sc7f",
-    embedId: "m8sc7f",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/m8sc7f.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "guess 2",
     videoUrl: "https://streamable.com/955hog",
     embedId: "955hog",
@@ -171,6 +155,22 @@ const entertainmentReels = [
     videoUrl: "https://streamable.com/yovzys",
     embedId: "yovzys",
     thumbnail: `https://cdn-cf-east.streamable.com/image/yovzys.jpg`,
+    platform: "streamable",
+  },
+
+  {
+    title: "Who is the liar?",
+    videoUrl: "https://streamable.com/m8sc7f",
+    embedId: "m8sc7f",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/m8sc7f.jpg`,
+    platform: "streamable",
+  },
+
+  {
+    title: "guess 1",
+    videoUrl: "https://streamable.com/rk5swm",
+    embedId: "rk5swm",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/rk5swm.jpg`,
     platform: "streamable",
   },
 ];
