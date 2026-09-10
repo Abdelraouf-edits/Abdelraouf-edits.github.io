@@ -45,14 +45,6 @@ const projects = [
 
 const reels = [
   {
-    title: "Spain Trip - Roman Bridge",
-    videoUrl: "https://streamable.com/bzr9go",
-    embedId: "bzr9go",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/bzr9go.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "kazakhstan vlog",
     videoUrl: "https://streamable.com/zn1yte",
     embedId: "zn1yte",
