@@ -143,14 +143,6 @@ const entertainmentReels = [
   },
 
   {
-    title: "guess 2",
-    videoUrl: "https://streamable.com/wx2z9c",
-    embedId: "wx2z9c",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/wx2z9c.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "guess 1",
     videoUrl: "https://streamable.com/rk5swm",
     embedId: "rk5swm",
