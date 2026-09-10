@@ -123,6 +123,14 @@ const reels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/gwor4q.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "The Great Mosque of Córdoba",
+    videoUrl: "https://streamable.com/xoiaxt",
+    embedId: "xoiaxt",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/xoiaxt.jpg`,
+    platform: "streamable",
+  },
 ];
 
 const entertainmentReels = [
