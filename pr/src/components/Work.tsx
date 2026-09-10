@@ -173,6 +173,14 @@ const entertainmentReels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/ly0yuu.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "Timer challenge",
+    videoUrl: "https://streamable.com/yovzys",
+    embedId: "yovzys",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/yovzys.jpg`,
+    platform: "streamable",
+  },
 ];
 
 // Optimized Reel Card with proper memoization and performance hints
