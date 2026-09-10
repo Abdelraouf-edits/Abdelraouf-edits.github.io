@@ -109,10 +109,10 @@ const reels = [
   },
 
   {
-    title: "You want a marketing company for 200 dinars?",
-    videoUrl: "https://streamable.com/s4k8wb",
-    embedId: "s4k8wb",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/s4k8wb.jpg`,
+    title: "ad",
+    videoUrl: "https://streamable.com/gwor4q",
+    embedId: "gwor4q",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/gwor4q.jpg`,
     platform: "streamable",
   },
 
@@ -125,10 +125,10 @@ const reels = [
   },
 
   {
-    title: "ad",
-    videoUrl: "https://streamable.com/gwor4q",
-    embedId: "gwor4q",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/gwor4q.jpg`,
+    title: "You want a marketing company for 200 dinars?",
+    videoUrl: "https://streamable.com/s4k8wb",
+    embedId: "s4k8wb",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/s4k8wb.jpg`,
     platform: "streamable",
   },
 ];
