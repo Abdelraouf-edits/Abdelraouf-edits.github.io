@@ -123,6 +123,14 @@ const reels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/gwor4q.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "Delivery to all countries worldwide",
+    videoUrl: "https://streamable.com/lc21cw",
+    embedId: "lc21cw",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/lc21cw.jpg`,
+    platform: "streamable",
+  },
 ];
 
 const entertainmentReels = [
