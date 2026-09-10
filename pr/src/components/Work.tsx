@@ -173,6 +173,14 @@ const entertainmentReels = [
     thumbnail: `https://cdn-cf-east.streamable.com/image/m8sc7f.jpg`,
     platform: "streamable",
   },
+
+  {
+    title: "guess 2",
+    videoUrl: "https://streamable.com/955hog",
+    embedId: "955hog",
+    thumbnail: `https://cdn-cf-east.streamable.com/image/955hog.jpg`,
+    platform: "streamable",
+  },
 ];
 
 // Optimized Reel Card with proper memoization and performance hints
