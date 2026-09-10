@@ -69,14 +69,6 @@ const reels = [
   },
 
   {
-    title: "Caption Bazaar Perfumes",
-    videoUrl: "https://streamable.com/2aoz7t",
-    embedId: "2aoz7t",
-    thumbnail: `https://cdn-cf-east.streamable.com/image/2aoz7t.jpg`,
-    platform: "streamable",
-  },
-
-  {
     title: "Delivery to all countries worldwide",
     videoUrl: "https://streamable.com/lc21cw",
     embedId: "lc21cw",
